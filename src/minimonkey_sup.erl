@@ -31,7 +31,15 @@ start_link() ->
 %% Before OTP 18 tuples must be used to specify a child. e.g.
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, {{one_for_all, 0, 1}, []}}.
+    RanchSupSpec = {ranch_sup, {ranch_sup, start_link, []},
+		    permanent, 5000, supervisor, [ranch_sup]},
+    ListenerSpec = ranch:child_spec(minimonkey, 100,
+				    ranch_tcp, [{port, 1773}],
+				    minimonkey_protocol, []),
+    Login = #{id => login,
+	      start => {login, start_link, []}},
+
+    {ok, {{one_for_one, 10, 10}, [RanchSupSpec, ListenerSpec, Login]}}.
 
 %%====================================================================
 %% Internal functions
