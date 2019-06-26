@@ -1,6 +1,9 @@
 MiniMonkey
 ==========
 
+[![Build Status](https://travis-ci.org/Raphexion/minimonkey.svg?branch=master)](https://travis-ci.org/Raphexion/minimonkey)
+[![codecov.io](https://codecov.io/gh/Raphexion/minimonkey/coverage.svg?branch=master)](https://codecov.io/gh/Raphexion/minimonkey?branch=master)
+
 MiniMonkey is a minimal message routing system.
 Considerably smaller and simpler than MQTT.
 
