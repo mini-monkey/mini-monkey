@@ -39,6 +39,19 @@ All messages, both to and from the server follow a trivial binary protocol.
 N bytes : Optional payload
 ```
 
+Ports
+-----
+
+MiniMonkey uses two seperate ports.
+
+| Port | Comment                             |
+|-------|------------------------------------|
+|  1773 | Users and Devices (binary protocol)|
+| 11773 | Administrators (HTTP/REST)         |
+
+The reason is that we can easily firewall the Administrators' port.
+Moreover, we want to have clearn seperations of concerns in the server.
+
 Function Codes
 --------------
 
