@@ -14,7 +14,7 @@ Three perspectives
 
 When designing MiniMonkey we need to focus on our three users:
 
-1. Users that want to primarily consume data and control devices
+1. Controllers that want to primarily consume data and control devices
 2. Devices that primarily will produce data and be be controlled
 3. Administrators that needs to configure access controls
 
@@ -47,10 +47,10 @@ Ports
 
 MiniMonkey uses two seperate ports.
 
-| Port | Comment                             |
-|-------|------------------------------------|
-|  1773 | Users and Devices (binary protocol)|
-| 11773 | Administrators (HTTP/REST)         |
+| Port | Comment                                   |
+|-------|------------------------------------------|
+|  1773 | Controllers and Devices (binary protocol)|
+| 11773 | Administrators (HTTP/REST)               |
 
 The reason is that we can easily firewall the Administrators' port.
 Moreover, we want to have clearn seperations of concerns in the server.
