@@ -1,10 +1,21 @@
-minimonkey
+MiniMonkey
 ==========
 
 MiniMonkey is a minimal message routing system.
 Considerably smaller and simpler than MQTT.
 
-It should possible to implement a client in under one hour.
+It should be possible to implement a client in under one hour.
+
+Three perspectives
+------------------
+
+When designing MiniMonkey we need to focus on our three users:
+
+1. Users that want to primarily consume data and control devices
+2. Devices that primarily will produce data and be be controlled
+3. Administrators that needs to configure access controls
+
+![Three perspectives](doc/three_perspectives.png)
 
 Design decisions
 ----------------
@@ -13,7 +24,7 @@ MiniMonkey is a publish / subscribe broker than only support routing keys.
 Especially it does not implement topics.
 
 MiniMonkey only cares about routing blobs.
-Espeically it does not use JSON / Protocol-buffers or other serialization.
+Especially it does not use JSON / Protocol-buffers or other serialization.
 
 MiniMonkey is designed around small payloads.
 Moreover, the system should be "simple" enough that anyone can implement a client.
