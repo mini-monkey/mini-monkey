@@ -1,0 +1,11 @@
+@startuml
+
+User << User >> as U
+User << Device >> as D
+User << Admin >> as A
+
+U --> (MiniMonkey)
+D --> (MiniMonkey)
+A --> (MiniMonkey)
+
+@enduml
