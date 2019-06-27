@@ -12,7 +12,7 @@
 %% API
 -export([start_link/1,
 	 publish/2,
-	 subscribe/2]).
+	 subscribe/3]).
 
 %% Behaviour
 -export([init/1,
@@ -29,21 +29,39 @@
 start_link(Name) ->
     gen_server:start_link(?MODULE, Name, []).
 
-publish(Room, Payload) ->
+%% @doc publish
+%% Publish a message to a room
+
+-spec publish(binary() | pid(), binary()) -> 'ok' | 'error'.
+
+publish(Name, Payload) when is_binary(Name) ->
+    {ok, Room} = room_sup:name_to_room(Name),
+    publish(Room, Payload);
+
+publish(Room, Payload) when is_pid(Room) ->
     gen_server:cast(Room, {publish, Payload}).
 
-subscribe(Room, Client) ->
-    gen_server:cast(Room, {subscribe, Client}).
+%% @doc publish
+%% Publish a message to a room
+
+-spec subscribe(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
+
+subscribe(Name, Client, Tag) when is_binary(Name) ->
+    {ok, Room} = room_sup:name_to_room(Name),
+    subscribe(Room, Client, Tag);
+
+subscribe(Room, Client, Tag) when is_pid(Room) ->
+    gen_server:cast(Room, {subscribe, Client, Tag}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
 %%------------------------------------------------------------------------------
 
--record(state, {name, subscribers=[]}).
+-record(state, {name, subs, last = <<>>, published=0}).
 
 %% @hidden
 init(Name) ->
-    {ok, #state{name=Name}}.
+    {ok, #state{name=Name, subs=#{}}}.
 
 %% @hidden
 handle_call(What, _From, State) ->
@@ -53,8 +71,8 @@ handle_call(What, _From, State) ->
 handle_cast({publish, Payload}, State) ->
     {noreply, priv_publish(Payload, State)};
 
-handle_cast({subscribe, Client}, State) ->
-    {noreply, priv_subscribe(Client, State)};
+handle_cast({subscribe, Client, Tag}, State) ->
+    {noreply, priv_subscribe(Client, Tag, State)};
 
 handle_cast(_What, State) ->
     {noreply, State}.
@@ -64,7 +82,8 @@ handle_info(_What, State) ->
     {noreply, State}.
 
 %% @hidden
-terminate(_Reason, _State) ->
+terminate(_Reason, #state{name=Name}) ->
+    room_sup:unname_room(Name),
     ok.
 
 %% @hidden
@@ -75,11 +94,18 @@ code_change(_OldVsn, State, _Extra) ->
 %% Private
 %%------------------------------------------------------------------------------
 
-priv_publish(_Payload, State) ->
-    State.
+priv_publish(Payload, State=#state{subs=Subs, published=Published}) ->
+    priv_notify(Payload, maps:to_list(Subs)),
+    State#state{last=Payload, published=Published+1}.
 
-priv_subscribe(_Client, State) ->
-    State.
+priv_subscribe(Client, Tag, State=#state{subs=Subs}) ->
+    State#state{subs=Subs#{Client => Tag}}.
+
+priv_notify(_Payload, []) ->
+    ok;
+priv_notify(Payload, [{Client, Tag}|Rest]) ->
+    Client ! {published, Payload, Tag},
+    priv_notify(Payload, Rest).
 
 %%------------------------------------------------------------------------------
 %% Tests
