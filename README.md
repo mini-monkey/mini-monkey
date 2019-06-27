@@ -43,18 +43,29 @@ All messages, both to and from the server follow a trivial binary protocol.
 N bytes : Optional payload
 ```
 
-Ports
------
+God Token
+---------
 
-MiniMonkey uses two seperate ports.
+Then MiniMonkey starts it will read the environment variable
 
-| Port | Comment                                   |
-|-------|------------------------------------------|
-|  1773 | Controllers and Devices (binary protocol)|
-| 11773 | Administrators (HTTP/REST)               |
+| Variable  | Comment                                 |
+|-----------|-----------------------------------------|
+| god_token | A token that has all rights             |
 
-The reason is that we can easily firewall the Administrators' port.
-Moreover, we want to have clearn seperations of concerns in the server.
+
+```
+export god_token="myToken"
+```
+
+Port
+----
+
+MiniMonkey uses one port:
+
+| Port | Comment                                 |
+|------|-----------------------------------------|
+| 1773 | Controllers, Devices and Administrators |
+
 
 Function Codes
 --------------
