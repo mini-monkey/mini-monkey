@@ -62,7 +62,7 @@ handle_info({tcp, _Port, DataNew}, State0=#state{data=DataOld}) ->
     Data = <<DataOld/binary, DataNew/binary>>,
     lager:warning("total data  : ~p", [Data]),
 
-    case correct_formated(Data) of
+    case mm_support:correctly_formated(Data) of
 	{ok, Code, Payload, Rest} ->
 	    case handle_payload(Code, Payload, State0#state{data=Rest}) of
 		{reply, Resp, State} ->
@@ -139,16 +139,6 @@ handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
 	_ ->
 	    {reply, mm_encode:err("authorization failed"), State}
     end.
-
-correct_formated(<<Code:8, Size:16/little, Data/binary>>) when Size < byte_size(Data) ->
-    <<Payload:Size/binary, Rest/binary>> = Data,
-    {ok, Code, Payload, <<>>};
-
-correct_formated(<<Code:8, Size:16/little, Payload/binary>>) when Size == byte_size(Payload) ->
-    {ok, Code, Payload, <<>>};
-
-correct_formated(Data) ->
-    {error, Data}.
 
 %%------------------------------------------------------------------------------
 %% Tests
