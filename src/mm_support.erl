@@ -1,5 +1,6 @@
 -module(mm_support).
 
+-include("codes.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -export([binary_env_var/2,
@@ -33,3 +34,14 @@ correctly_formated(Data) ->
 formated_empty_test() ->
     Data = <<1,2,3,4>>,
     ?assert({error, Data} =:= correctly_formated(Data)).
+
+formated_good_no_extra_test() ->
+    Token = <<1,2,3,4>>,
+    Payload = mm_encode:login(Token),
+    ?assert({ok, ?AUTH, Token, <<>>} =:= correctly_formated(Payload)).
+
+formated_good_with_extra_test() ->
+    Token = <<1,2,3,4>>,
+    Part = mm_encode:login(Token),
+    Payload = <<Part/binary, Part/binary>>,
+    ?assert({ok, ?AUTH, Token, Part} =:= correctly_formated(Payload)).
