@@ -35,11 +35,19 @@ init([]) ->
 		    permanent, 5000, supervisor, [ranch_sup]},
     ListenerSpec = ranch:child_spec(minimonkey, 100,
 				    ranch_tcp, [{port, 1773}],
-				    minimonkey_protocol, []),
+				    mm_user, []),
     Login = #{id => login,
 	      start => {login, start_link, []}},
 
-    {ok, {{one_for_one, 10, 10}, [RanchSupSpec, ListenerSpec, Login]}}.
+    RoomSup = #{id => room_sup,
+		start => {room_sup, start_link, []}},
+
+    Children = [RanchSupSpec,
+		ListenerSpec,
+		RoomSup,
+		Login],
+
+    {ok, {{one_for_one, 10, 10}, Children}}.
 
 %%====================================================================
 %% Internal functions
