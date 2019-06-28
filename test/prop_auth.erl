@@ -30,6 +30,8 @@ prop_subscribe_with_new_token_test() ->
 		{ok, Room} = mm_room_sup:create_room(Name),
 		ok = mm_room:add_subscriber_permission(Room, ?GOD_TOKEN, Token),
 		ok =:= mm_room:subscribe(Room, Token, User, Tag) andalso
+		    ok =:= mm_room:revoke_subscriber_permission(Room, ?GOD_TOKEN, Token) andalso
+		    error =:= mm_room:subscribe(Room, Token, User, Tag) andalso
 		    ok =:= mm_room:unsubscribe(Room, User)
 	    end).
 
@@ -39,7 +41,9 @@ prop_publish_with_new_token_test() ->
 		mm_room_sup:start_link(?GOD_TOKEN),
 		{ok, Room} = mm_room_sup:create_room(Name),
 		ok = mm_room:add_publisher_permission(Room, ?GOD_TOKEN, Token),
-		ok =:= mm_room:publish(Room, Token, Content)
+		ok =:= mm_room:publish(Room, Token, Content) andalso
+		    ok =:= mm_room:revoke_publisher_permission(Room, ?GOD_TOKEN, Token) andalso
+		    error =:= mm_room:publish(Room, Token, Content)
 	    end).
 
 %%%%%%%%%%%%%%%
