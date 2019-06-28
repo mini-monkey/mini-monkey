@@ -5,8 +5,6 @@
 -export([start_link/1,
 	 attempt/1,
 	 add_token/1]).
--export([may_token_publish_in_room/2,
-	 may_token_subscribe_in_room/2]).
 
 -export([init/1,
 	 handle_call/3,
@@ -24,12 +22,6 @@ attempt(Token) ->
 add_token(Token) ->
     gen_server:cast(?MODULE, {add, Token}).
 
-may_token_publish_in_room(Token, Room) ->
-    ok.
-
-may_token_subscribe_in_room(Token, Room) ->
-    ok.
-
 init(Token) ->
     ets:new(?MODULE, [set, named_table]),
     ets:insert(?MODULE, {Token, true}),
@@ -40,7 +32,7 @@ handle_call({attempt, Token}, _From, State=#{god := Token}) ->
 
 handle_call({attempt, Token}, _From, State) ->
     case ets:lookup(?MODULE, Token) of
-	[{Key, true}] ->
+	[{Token, true}] ->
 	    {reply, ok, State};
 	_ ->
 	    {reply, error, State}

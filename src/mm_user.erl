@@ -121,22 +121,20 @@ handle_payload(_, _, State=#state{token=missing}) ->
     {reply, mm_encode:err("please login"), State};
 
 handle_payload(?ENTER, Room, State) ->
-    room_sup:create_room(Room),
+    mm_room_sup:create_room(Room),
     {reply, mm_encode:msg("ok"), note_room(Room, State)};
 
 handle_payload(?PUB, Data, State=#state{token=Token, room=Room}) ->
-    case login:may_token_publish_in_room(Token, Room) of
+    case mm_room:publish(Room, Token, Data) of
 	ok ->
-	    room:publish(Room, Data),
 	    {reply, mm_encode:msg("ok"), State};
 	_ ->
 	    {reply, mm_encode:err("authorization failed"), State}
     end;
 
 handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
-    case login:may_token_subscribe_in_room(Token, Room) of
+    case mm_room:subscribe(Room, Token, self(), Tag) of
 	ok ->
-	    room:subscribe(Room, self(), Tag),
 	    {reply, mm_encode:msg("ok"), State};
 	_ ->
 	    {reply, mm_encode:err("authorization failed"), State}

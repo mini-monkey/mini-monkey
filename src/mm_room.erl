@@ -235,7 +235,11 @@ safe_room(Name) when is_binary(Name) ->
     {ok, Room} = mm_room_sup:name_to_room(Name),
     Room;
 safe_room(Room) when is_pid(Room) ->
-    Room.
+    Room;
+safe_room(Room) ->
+    lager:warning("safe room failed for ~p", [Room]),
+    {error, safe_room}.
+
 
 %%------------------------------------------------------------------------------
 %% Tests
