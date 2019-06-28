@@ -16,6 +16,9 @@
 	 unsubscribe/2,
 	 count_subscribers/1]).
 
+-export([add_admin_permission/2,
+	 revoke_admin_permission/2]).
+
 %% Behaviour
 -export([init/1,
 	 handle_call/3,
@@ -35,11 +38,9 @@ start_link(Name) ->
 %% Publish a message to a room
 
 -spec publish(binary() | pid(), binary()) -> 'ok' | 'error'.
-
 publish(Name, Payload) when is_binary(Name) ->
     {ok, Room} = room_sup:name_to_room(Name),
     publish(Room, Payload);
-
 publish(Room, Payload) when is_pid(Room) ->
     gen_server:cast(Room, {publish, Payload}).
 
@@ -47,31 +48,39 @@ publish(Room, Payload) when is_pid(Room) ->
 %% Publish a message to a room
 
 -spec subscribe(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
-
 subscribe(Name, Client, Tag) when is_binary(Name) ->
     {ok, Room} = room_sup:name_to_room(Name),
     subscribe(Room, Client, Tag);
-
 subscribe(Room, Client, Tag) when is_pid(Room) ->
     gen_server:cast(Room, {subscribe, Client, Tag}).
 
 -spec unsubscribe(binary() | pid(), binary()) -> 'ok' | 'error'.
-
 unsubscribe(Name, Client) when is_binary(Name) ->
     {ok, Room} = room_sup:name_to_room(Name),
     unsubscribe(Room, Client);
-
 unsubscribe(Room, Client) when is_pid(Room) ->
     gen_server:cast(Room, {unsubscribe, Client}).
 
 -spec count_subscribers(binary() | pid()) -> integer().
-
 count_subscribers(Name) when is_binary(Name) ->
     {ok, Room} = mm_room_sup:name_to_room(Name),
     count_subscribers(Room);
-
 count_subscribers(Room) when is_pid(Room) ->
     gen_server:call(Room, count_subscribers).
+
+-spec add_admin_permission(binary() | pid(), binary()) -> 'ok' | 'error'.
+add_admin_permission(Name, Token) when is_binary(Name) ->
+    {ok, Room} = room_sup:name_to_room(Name),
+    add_admin_permission(Room, Token);
+add_admin_permission(Room, Token) when is_pid(Room) ->
+    gen_server:cast(Room, {add_admin_permission, Token}).
+
+-spec revoke_admin_permission(binary() | pid(), binary()) -> 'ok' | 'error'.
+revoke_admin_permission(Name, Token) when is_binary(Name) ->
+    {ok, Room} = room_sup:name_to_room(Name),
+    revoke_admin_permission(Room, Token);
+revoke_admin_permission(Room, Token) when is_pid(Room) ->
+    gen_server:cast(Room, {revoke_admin_permission, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
