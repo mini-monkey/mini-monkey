@@ -26,7 +26,7 @@
 %% API
 %%------------------------------------------------------------------------------
 
-start_link(Ref, Socket, Transport, Opts) ->
+start_link(_Ref, Socket, Transport, Opts) ->
     gen_server:start_link(?MODULE, [Socket, Transport, Opts], []).
 
 %%-----------------------------------------------------------------------------
@@ -37,7 +37,9 @@ start_link(Ref, Socket, Transport, Opts) ->
 		transport,
 		data = <<>>,
 		token = missing,
-		room = <<>>}).
+		room = <<>>,
+		rooms = #{}  %% needed so we can unsubscribe
+	       }).
 
 %% @hidden
 init([Socket, Transport, _Opts = []]) ->
@@ -85,8 +87,9 @@ handle_info(What, State) ->
     {noreply, State}.
 
 %% @hidden
-terminate(Reason, _State) ->
+terminate(Reason, State) ->
     lager:warning("terminate ~p", [Reason]),
+    unsubscribe(State),
     ok.
 
 %% @hidden
@@ -119,7 +122,7 @@ handle_payload(_, _, State=#state{token=missing}) ->
 
 handle_payload(?ENTER, Room, State) ->
     room_sup:create_room(Room),
-    {reply, mm_encode:msg("ok"), State#state{room=Room}};
+    {reply, mm_encode:msg("ok"), note_room(Room, State)};
 
 handle_payload(?PUB, Data, State=#state{token=Token, room=Room}) ->
     case login:may_token_publish_in_room(Token, Room) of
@@ -138,6 +141,19 @@ handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
 	_ ->
 	    {reply, mm_encode:err("authorization failed"), State}
     end.
+
+note_room(Room, State=#state{rooms=Rooms}) ->
+    State#state{room=Room, rooms=Rooms#{Room => true}}.
+
+unsubscribe(#state{rooms=Rooms}) ->
+    unsubscribe(Rooms);
+unsubscribe([]) ->
+    ok;
+unsubscribe([Room|Rooms]) ->
+    room:unsubscribe(Room, self()),
+    unsubscribe(Rooms).
+
+
 
 %%------------------------------------------------------------------------------
 %% Tests

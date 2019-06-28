@@ -12,7 +12,8 @@
 %% API
 -export([start_link/1,
 	 publish/2,
-	 subscribe/3]).
+	 subscribe/3,
+	 unsubscribe/2]).
 
 %% Behaviour
 -export([init/1,
@@ -53,6 +54,15 @@ subscribe(Name, Client, Tag) when is_binary(Name) ->
 subscribe(Room, Client, Tag) when is_pid(Room) ->
     gen_server:cast(Room, {subscribe, Client, Tag}).
 
+-spec unsubscribe(binary() | pid(), binary()) -> 'ok' | 'error'.
+
+unsubscribe(Name, Client) when is_binary(Name) ->
+    {ok, Room} = room_sup:name_to_room(Name),
+    unsubscribe(Room, Client);
+
+unsubscribe(Room, Client) when is_pid(Room) ->
+    gen_server:cast(Room, {unsubscribe, Client}).
+
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
 %%------------------------------------------------------------------------------
@@ -73,6 +83,9 @@ handle_cast({publish, Payload}, State) ->
 
 handle_cast({subscribe, Client, Tag}, State) ->
     {noreply, priv_subscribe(Client, Tag, State)};
+
+handle_cast({unsubscribe, Client}, State) ->
+    {noreply, priv_unsubscribe(Client, State)};
 
 handle_cast(_What, State) ->
     {noreply, State}.
@@ -100,6 +113,9 @@ priv_publish(Payload, State=#state{subs=Subs, published=Published}) ->
 
 priv_subscribe(Client, Tag, State=#state{subs=Subs}) ->
     State#state{subs=Subs#{Client => Tag}}.
+
+priv_unsubscribe(Client, State=#state{subs=Subs}) ->
+    State#state{subs=maps:remove(Client, Subs)}.
 
 priv_notify(_Payload, []) ->
     ok;
