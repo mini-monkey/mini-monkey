@@ -20,6 +20,8 @@
 	 revoke_admin_permission/3]).
 -export([add_subscriber_permission/3,
 	 revoke_subscriber_permission/3]).
+-export([add_publisher_permission/3,
+	 revoke_publisher_permission/3]).
 
 %% Behaviour
 -export([init/1,
@@ -59,6 +61,12 @@ add_subscriber_permission(Room, MyToken, Token) ->
 
 revoke_subscriber_permission(Room, MyToken, Token) ->
     gen_server:call(safe_room(Room), {revoke_subscriber_permission, MyToken, Token}).
+
+add_publisher_permission(Room, MyToken, Token) ->
+    gen_server:call(safe_room(Room), {add_publisher_permission, MyToken, Token}).
+
+revoke_publisher_permission(Room, MyToken, Token) ->
+    gen_server:call(safe_room(Room), {revoke_publisher_permission, MyToken, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
@@ -127,6 +135,22 @@ handle_call({revoke_subscriber_permission, MyToken, Token}, _From, State) ->
     case subscriber_rights(MyToken, State) of
 	true ->
 	    {reply, ok, priv_revoke_subscriber(Token, State)};
+	_ ->
+	    {reply, error, State}
+    end;
+
+handle_call({add_publisher_permission, MyToken, Token}, _From, State) ->
+    case publisher_rights(MyToken, State) of
+	true ->
+	    {reply, ok, priv_add_publisher(Token, State)};
+	_ ->
+	    {reply, error, State}
+    end;
+
+handle_call({revoke_publisher_permission, MyToken, Token}, _From, State) ->
+    case publisher_rights(MyToken, State) of
+	true ->
+	    {reply, ok, priv_revoke_publisher(Token, State)};
 	_ ->
 	    {reply, error, State}
     end;
@@ -200,6 +224,12 @@ priv_add_subscriber(Token, State=#state{sub_perms=SubPerms}) ->
 
 priv_revoke_subscriber(Token, State=#state{sub_perms=SubPerms}) ->
     State#state{sub_perms=maps:remove(Token, SubPerms)}.
+
+priv_add_publisher(Token, State=#state{pub_perms=SubPerms}) ->
+    State#state{pub_perms=SubPerms#{Token => true}}.
+
+priv_revoke_publisher(Token, State=#state{pub_perms=PubPerms}) ->
+    State#state{pub_perms=maps:remove(Token, PubPerms)}.
 
 safe_room(Name) when is_binary(Name) ->
     {ok, Room} = mm_room_sup:name_to_room(Name),
