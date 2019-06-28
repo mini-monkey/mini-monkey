@@ -101,14 +101,14 @@ code_change(_OldVsn, State, _Extra) ->
 %%------------------------------------------------------------------------------
 
 send_response(Payload, #state{socket=Socket, transport=Transport}) ->
-    lager:warning("response: ~p", [Payload]),
+    lager:debug("response: ~p", [Payload]),
     Transport:send(Socket, Payload).
 
 %% Here we handle all the different payloads.
 %% Remember that our connection is stateful.
 
 handle_payload(?AUTH, Token, State) ->
-    lager:warning("auth with ~p", [Token]),
+    lager:debug("auth with ~p", [Token]),
     case login:attempt(Token) of
 	ok ->
 	    {reply, mm_encode:msg("logged in"), State#state{token=Token}};
