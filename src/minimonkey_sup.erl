@@ -4,8 +4,8 @@
 %%%-------------------------------------------------------------------
 
 -module(minimonkey_sup).
-
 -behaviour(supervisor).
+-define(SIZE_RANDOM_GOD_TOKEN, 20).
 
 %% API
 -export([start_link/0]).
@@ -31,16 +31,19 @@ start_link() ->
 %% Before OTP 18 tuples must be used to specify a child. e.g.
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
+    Random = base64:encode(crypto:strong_rand_bytes(?SIZE_RANDOM_GOD_TOKEN)),
+    Token = mm_support:binary_env_var("god_token", Random),
+
     RanchSupSpec = {ranch_sup, {ranch_sup, start_link, []},
 		    permanent, 5000, supervisor, [ranch_sup]},
     ListenerSpec = ranch:child_spec(minimonkey, 100,
 				    ranch_tcp, [{port, 1773}],
 				    mm_user, []),
     Login = #{id => login,
-	      start => {login, start_link, []}},
+	      start => {login, start_link, [Token]}},
 
     RoomSup = #{id => room_sup,
-		start => {room_sup, start_link, []}},
+		start => {room_sup, start_link, [Token]}},
 
     Children = [RanchSupSpec,
 		ListenerSpec,

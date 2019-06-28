@@ -1,9 +1,8 @@
 -module(login).
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
--define(SIZE_RANDOM_GOD_TOKEN, 20).
 
--export([start_link/0,
+-export([start_link/1,
 	 attempt/1,
 	 add_token/1]).
 -export([may_token_publish_in_room/2,
@@ -16,8 +15,8 @@
 	 terminate/2,
 	 code_change/3]).
 
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+start_link(Token) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, Token, []).
 
 attempt(Token) ->
     gen_server:call(?MODULE, {attempt, Token}).
@@ -31,9 +30,7 @@ may_token_publish_in_room(Token, Room) ->
 may_token_subscribe_in_room(Token, Room) ->
     ok.
 
-init(_) ->
-    Random = base64:encode(crypto:strong_rand_bytes(?SIZE_RANDOM_GOD_TOKEN)),
-    Token = mm_support:binary_env_var("god_token", Random),
+init(Token) ->
     ets:new(?MODULE, [set, named_table]),
     ets:insert(?MODULE, {Token, true}),
     {ok, #{god => Token}}.

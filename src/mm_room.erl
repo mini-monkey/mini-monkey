@@ -10,9 +10,9 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/1,
-	 publish/2,
-	 subscribe/3,
+-export([start_link/2,
+	 publish/3,
+	 subscribe/4,
 	 unsubscribe/2,
 	 count_subscribers/1]).
 
@@ -31,56 +31,26 @@
 %% API
 %%------------------------------------------------------------------------------
 
-start_link(Name) ->
-    gen_server:start_link(?MODULE, Name, []).
+start_link(GodToken, Name) ->
+    gen_server:start_link(?MODULE, [GodToken, Name], []).
 
-%% @doc publish
-%% Publish a message to a room
+publish(Room, Token, Payload) ->
+    gen_server:call(safe_room(Room), {publish, Token, Payload}).
 
--spec publish(binary() | pid(), binary()) -> 'ok' | 'error'.
-publish(Name, Payload) when is_binary(Name) ->
-    {ok, Room} = room_sup:name_to_room(Name),
-    publish(Room, Payload);
-publish(Room, Payload) when is_pid(Room) ->
-    gen_server:cast(Room, {publish, Payload}).
+subscribe(Room, Token, Client, Tag) ->
+    gen_server:call(safe_room(Room), {subscribe, Token, Client, Tag}).
 
-%% @doc publish
-%% Publish a message to a room
+unsubscribe(Room, Client) ->
+    gen_server:cast(safe_room(Room), {unsubscribe, Client}).
 
--spec subscribe(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
-subscribe(Name, Client, Tag) when is_binary(Name) ->
-    {ok, Room} = room_sup:name_to_room(Name),
-    subscribe(Room, Client, Tag);
-subscribe(Room, Client, Tag) when is_pid(Room) ->
-    gen_server:cast(Room, {subscribe, Client, Tag}).
+count_subscribers(Room) ->
+    gen_server:call(safe_room(Room), count_subscribers).
 
--spec unsubscribe(binary() | pid(), binary()) -> 'ok' | 'error'.
-unsubscribe(Name, Client) when is_binary(Name) ->
-    {ok, Room} = room_sup:name_to_room(Name),
-    unsubscribe(Room, Client);
-unsubscribe(Room, Client) when is_pid(Room) ->
-    gen_server:cast(Room, {unsubscribe, Client}).
+add_admin_permission(Room, MyToken, Token) ->
+    gen_server:cast(safe_room(Room), {add_admin_permission, MyToken, Token}).
 
--spec count_subscribers(binary() | pid()) -> integer().
-count_subscribers(Name) when is_binary(Name) ->
-    {ok, Room} = mm_room_sup:name_to_room(Name),
-    count_subscribers(Room);
-count_subscribers(Room) when is_pid(Room) ->
-    gen_server:call(Room, count_subscribers).
-
--spec add_admin_permission(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
-add_admin_permission(Name, MyToken, Token) when is_binary(Name) ->
-    {ok, Room} = room_sup:name_to_room(Name),
-    add_admin_permission(Room, MyToken, Token);
-add_admin_permission(Room, MyToken, Token) when is_pid(Room) ->
-    gen_server:cast(Room, {add_admin_permission, MyToken, Token}).
-
--spec revoke_admin_permission(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
-revoke_admin_permission(Name, MyToken, Token) when is_binary(Name) ->
-    {ok, Room} = room_sup:name_to_room(Name),
-    revoke_admin_permission(Room, MyToken, Token);
-revoke_admin_permission(Room, MyToken, Token) when is_pid(Room) ->
-    gen_server:cast(Room, {revoke_admin_permission, MyToken, Token}).
+revoke_admin_permission(Room, MyToken, Token) ->
+    gen_server:cast(safe_room(Room), {revoke_admin_permission, MyToken, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
@@ -88,24 +58,44 @@ revoke_admin_permission(Room, MyToken, Token) when is_pid(Room) ->
 
 -record(state, {
 	  name,
+	  god_token,
 	  subs = #{},
 	  admins = #{},
-	  writers = #{},
-	  readers = #{},
+	  pub_perms = #{},
+	  sub_perms = #{},
 	  last = <<>>,
 	  published=0
 	 }).
 
 %% @hidden
-init(Name) ->
-    {ok, #state{name=Name}}.
+init([GodToken, Name]) ->
+    {ok, #state{name=Name, god_token=GodToken}}.
 
 %% @hidden
+handle_call({publish, Token, Payload}, _From, State) ->
+    case publish_rights(Token, State) of
+	true ->
+	    {reply, ok, priv_publish(Payload, State)};
+	false ->
+	    {reply, error, State}
+    end;
+
+handle_call({subscribe, Token, Client, Tag}, _From, State) ->
+    lager:warning("AAA"),
+    case subscribe_rights(Token, State) of
+	true ->
+	    lager:warning("BBB"),
+	    {reply, ok, priv_subscribe(Client, Tag, State)};
+	_ ->
+	    lager:warning("CCC"),
+	    {reply, error, State}
+    end;
+
 handle_call(count_subscribers, _From, State=#state{subs=Subs}) ->
     {reply, {ok, maps:size(Subs)}, State};
 
 handle_call({add_admin_permission, MyToken, Token}, _From, State) ->
-    case adim_rights(MyToken, State) of
+    case admin_rights(MyToken, State) of
 	true ->
 	    {reply, ok, priv_add_admin(Token, State)};
 	_ ->
@@ -113,7 +103,7 @@ handle_call({add_admin_permission, MyToken, Token}, _From, State) ->
     end;
 
 handle_call({revoke_admin_permission, MyToken, Token}, _From, State) ->
-    case adim_rights(MyToken, State) of
+    case admin_rights(MyToken, State) of
 	true ->
 	    {reply, ok, priv_revoke_admin(Token, State)};
 	_ ->
@@ -124,12 +114,6 @@ handle_call(What, _From, State) ->
     {reply, {error, What}, State}.
 
 %% @hidden
-handle_cast({publish, Payload}, State) ->
-    {noreply, priv_publish(Payload, State)};
-
-handle_cast({subscribe, Client, Tag}, State) ->
-    {noreply, priv_subscribe(Client, Tag, State)};
-
 handle_cast({unsubscribe, Client}, State) ->
     {noreply, priv_unsubscribe(Client, State)};
 
@@ -142,7 +126,7 @@ handle_info(_What, State) ->
 
 %% @hidden
 terminate(_Reason, #state{name=Name}) ->
-    room_sup:unname_room(Name),
+    mm_room_sup:unname_room(Name),
     ok.
 
 %% @hidden
@@ -169,14 +153,35 @@ priv_notify(Payload, [{Client, Tag}|Rest]) ->
     Client ! {published, Payload, Tag},
     priv_notify(Payload, Rest).
 
-adim_rights(Token, #state{admins=Admins}) ->
+admin_rights(Token, #state{god_token=Token}) ->
+    true;
+admin_rights(Token, #state{admins=Admins}) ->
     maps:is_key(Token, Admins).
+
+publish_rights(Token, #state{god_token=Token}) ->
+    true;
+publish_rights(Token, #state{pub_perms=PubPerms}) ->
+    maps:is_key(Token, PubPerms).
+
+subscribe_rights(Token, #state{god_token=Token}) ->
+    lager:warning("god_token ok"),
+    true;
+subscribe_rights(Token, #state{sub_perms=SubPerms}) ->
+    maps:is_key(Token, SubPerms);
+subscribe_rights(Token, State) ->
+    lager:warning("fuck ~p ~n", [Token, State]).
 
 priv_add_admin(Token, State=#state{admins=Admins}) ->
     State#state{admins=Admins#{Token => true}}.
 
 priv_revoke_admin(Token, State=#state{admins=Admins}) ->
     State#state{admins=maps:remove(Token, Admins)}.
+
+safe_room(Name) when is_binary(Name) ->
+    {ok, Room} = mm_room_sup:name_to_room(Name),
+    Room;
+safe_room(Room) when is_pid(Room) ->
+    Room.
 
 %%------------------------------------------------------------------------------
 %% Tests

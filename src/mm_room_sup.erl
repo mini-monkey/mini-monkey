@@ -8,7 +8,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0,
+-export([start_link/1,
 	 create_room/1,
 	 unname_room/1,
 	 name_to_room/1]).
@@ -22,8 +22,8 @@
 %% API functions
 %%====================================================================
 
-start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+start_link(GodToken) ->
+    supervisor:start_link({local, ?SERVER}, ?MODULE, GodToken).
 
 create_room(Name) ->
     case name_to_room(Name) of
@@ -51,7 +51,7 @@ name_to_room(Name) ->
 %% Supervisor callbacks
 %%====================================================================
 
-init([]) ->
+init(GodToken) ->
     ets:new(?MODULE, [set,
 		      public,
 		      named_table,
@@ -64,7 +64,7 @@ init([]) ->
 
     Room = #{id => mm_room,
 	     restart => transient,
-	     start => {mm_room, start_link, []}},
+	     start => {mm_room, start_link, [GodToken]}},
 
     Children = [Room],
 
