@@ -42,8 +42,8 @@ init([]) ->
     Login = #{id => login,
 	      start => {login, start_link, [Token]}},
 
-    RoomSup = #{id => room_sup,
-		start => {room_sup, start_link, [Token]}},
+    RoomSup = #{id => mm_room_sup,
+		start => {mm_room_sup, start_link, [Token]}},
 
     Children = [RanchSupSpec,
 		ListenerSpec,
