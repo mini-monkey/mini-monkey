@@ -6,7 +6,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(room).
+-module(mm_room).
 -behaviour(gen_server).
 
 %% API
@@ -67,7 +67,7 @@ unsubscribe(Room, Client) when is_pid(Room) ->
 -spec count_subscribers(binary() | pid()) -> integer().
 
 count_subscribers(Name) when is_binary(Name) ->
-    {ok, Room} = room_sup:name_to_room(Name),
+    {ok, Room} = mm_room_sup:name_to_room(Name),
     count_subscribers(Room);
 
 count_subscribers(Room) when is_pid(Room) ->

@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(room_sup).
+-module(mm_room_sup).
 
 -behaviour(supervisor).
 
@@ -62,9 +62,9 @@ init([]) ->
                  intensity => 1,
                  period => 1},
 
-    Room = #{id => room,
+    Room = #{id => mm_room,
 	     restart => transient,
-	     start => {room, start_link, []}},
+	     start => {mm_room, start_link, []}},
 
     Children = [Room],
 
