@@ -72,11 +72,18 @@ Function Codes
 
 | Code | Comment                                                         |
 |------|-----------------------------------------------------------------|
+| 0x00 | Reseved for future use                                          |
 | 0x01 | Authenticate with token                                         |
 | 0x02 | Set current routing key (persistent until changed or reconnect) |
 | 0x03 | Publish binary payload                                          |
 | 0x04 | Subscribe to current routing key                                |
-| 0xEE | Error message                                                   |
+| 0x04 | Subscribe to current routing key                                |
+| 0x10 | Add admin permissions for token                                 |
+| 0x11 | Revoke admin permissions for token                              |
+| 0x12 | Add publish permissions for token                               |
+| 0x13 | Revoke publish permissions for token                            |
+| 0x14 | Add subscription permissions for token                          |
+| 0x15 | Revoke subscription permissions for token                       |
 | 0xFF | Debug message                                                   |
 
 Examples
