@@ -18,6 +18,8 @@
 
 -export([add_admin_permission/3,
 	 revoke_admin_permission/3]).
+-export([add_subscriber_permission/3,
+	 revoke_subscriber_permission/3]).
 
 %% Behaviour
 -export([init/1,
@@ -47,10 +49,16 @@ count_subscribers(Room) ->
     gen_server:call(safe_room(Room), count_subscribers).
 
 add_admin_permission(Room, MyToken, Token) ->
-    gen_server:cast(safe_room(Room), {add_admin_permission, MyToken, Token}).
+    gen_server:call(safe_room(Room), {add_admin_permission, MyToken, Token}).
 
 revoke_admin_permission(Room, MyToken, Token) ->
-    gen_server:cast(safe_room(Room), {revoke_admin_permission, MyToken, Token}).
+    gen_server:call(safe_room(Room), {revoke_admin_permission, MyToken, Token}).
+
+add_subscriber_permission(Room, MyToken, Token) ->
+    gen_server:call(safe_room(Room), {add_subscriber_permission, MyToken, Token}).
+
+revoke_subscriber_permission(Room, MyToken, Token) ->
+    gen_server:call(safe_room(Room), {revoke_subscriber_permission, MyToken, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
@@ -73,7 +81,7 @@ init([GodToken, Name]) ->
 
 %% @hidden
 handle_call({publish, Token, Payload}, _From, State) ->
-    case publish_rights(Token, State) of
+    case publisher_rights(Token, State) of
 	true ->
 	    {reply, ok, priv_publish(Payload, State)};
 	false ->
@@ -81,13 +89,10 @@ handle_call({publish, Token, Payload}, _From, State) ->
     end;
 
 handle_call({subscribe, Token, Client, Tag}, _From, State) ->
-    lager:warning("AAA"),
-    case subscribe_rights(Token, State) of
+    case subscriber_rights(Token, State) of
 	true ->
-	    lager:warning("BBB"),
 	    {reply, ok, priv_subscribe(Client, Tag, State)};
 	_ ->
-	    lager:warning("CCC"),
 	    {reply, error, State}
     end;
 
@@ -106,6 +111,22 @@ handle_call({revoke_admin_permission, MyToken, Token}, _From, State) ->
     case admin_rights(MyToken, State) of
 	true ->
 	    {reply, ok, priv_revoke_admin(Token, State)};
+	_ ->
+	    {reply, error, State}
+    end;
+
+handle_call({add_subscriber_permission, MyToken, Token}, _From, State) ->
+    case subscriber_rights(MyToken, State) of
+	true ->
+	    {reply, ok, priv_add_subscriber(Token, State)};
+	_ ->
+	    {reply, error, State}
+    end;
+
+handle_call({revoke_subscriber_permission, MyToken, Token}, _From, State) ->
+    case subscriber_rights(MyToken, State) of
+	true ->
+	    {reply, ok, priv_revoke_subscriber(Token, State)};
 	_ ->
 	    {reply, error, State}
     end;
@@ -158,24 +179,27 @@ admin_rights(Token, #state{god_token=Token}) ->
 admin_rights(Token, #state{admins=Admins}) ->
     maps:is_key(Token, Admins).
 
-publish_rights(Token, #state{god_token=Token}) ->
+publisher_rights(Token, #state{god_token=Token}) ->
     true;
-publish_rights(Token, #state{pub_perms=PubPerms}) ->
+publisher_rights(Token, #state{pub_perms=PubPerms}) ->
     maps:is_key(Token, PubPerms).
 
-subscribe_rights(Token, #state{god_token=Token}) ->
-    lager:warning("god_token ok"),
+subscriber_rights(Token, #state{god_token=Token}) ->
     true;
-subscribe_rights(Token, #state{sub_perms=SubPerms}) ->
-    maps:is_key(Token, SubPerms);
-subscribe_rights(Token, State) ->
-    lager:warning("fuck ~p ~n", [Token, State]).
+subscriber_rights(Token, #state{sub_perms=SubPerms}) ->
+    maps:is_key(Token, SubPerms).
 
 priv_add_admin(Token, State=#state{admins=Admins}) ->
     State#state{admins=Admins#{Token => true}}.
 
 priv_revoke_admin(Token, State=#state{admins=Admins}) ->
     State#state{admins=maps:remove(Token, Admins)}.
+
+priv_add_subscriber(Token, State=#state{sub_perms=SubPerms}) ->
+    State#state{sub_perms=SubPerms#{Token => true}}.
+
+priv_revoke_subscriber(Token, State=#state{sub_perms=SubPerms}) ->
+    State#state{sub_perms=maps:remove(Token, SubPerms)}.
 
 safe_room(Name) when is_binary(Name) ->
     {ok, Room} = mm_room_sup:name_to_room(Name),
