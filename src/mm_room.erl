@@ -16,8 +16,8 @@
 	 unsubscribe/2,
 	 count_subscribers/1]).
 
--export([add_admin_permission/2,
-	 revoke_admin_permission/2]).
+-export([add_admin_permission/3,
+	 revoke_admin_permission/3]).
 
 %% Behaviour
 -export([init/1,
@@ -68,33 +68,57 @@ count_subscribers(Name) when is_binary(Name) ->
 count_subscribers(Room) when is_pid(Room) ->
     gen_server:call(Room, count_subscribers).
 
--spec add_admin_permission(binary() | pid(), binary()) -> 'ok' | 'error'.
-add_admin_permission(Name, Token) when is_binary(Name) ->
+-spec add_admin_permission(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
+add_admin_permission(Name, MyToken, Token) when is_binary(Name) ->
     {ok, Room} = room_sup:name_to_room(Name),
-    add_admin_permission(Room, Token);
-add_admin_permission(Room, Token) when is_pid(Room) ->
-    gen_server:cast(Room, {add_admin_permission, Token}).
+    add_admin_permission(Room, MyToken, Token);
+add_admin_permission(Room, MyToken, Token) when is_pid(Room) ->
+    gen_server:cast(Room, {add_admin_permission, MyToken, Token}).
 
--spec revoke_admin_permission(binary() | pid(), binary()) -> 'ok' | 'error'.
-revoke_admin_permission(Name, Token) when is_binary(Name) ->
+-spec revoke_admin_permission(binary() | pid(), binary(), binary()) -> 'ok' | 'error'.
+revoke_admin_permission(Name, MyToken, Token) when is_binary(Name) ->
     {ok, Room} = room_sup:name_to_room(Name),
-    revoke_admin_permission(Room, Token);
-revoke_admin_permission(Room, Token) when is_pid(Room) ->
-    gen_server:cast(Room, {revoke_admin_permission, Token}).
+    revoke_admin_permission(Room, MyToken, Token);
+revoke_admin_permission(Room, MyToken, Token) when is_pid(Room) ->
+    gen_server:cast(Room, {revoke_admin_permission, MyToken, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
 %%------------------------------------------------------------------------------
 
--record(state, {name, subs, last = <<>>, published=0}).
+-record(state, {
+	  name,
+	  subs = #{},
+	  admins = #{},
+	  writers = #{},
+	  readers = #{},
+	  last = <<>>,
+	  published=0
+	 }).
 
 %% @hidden
 init(Name) ->
-    {ok, #state{name=Name, subs=#{}}}.
+    {ok, #state{name=Name}}.
 
 %% @hidden
 handle_call(count_subscribers, _From, State=#state{subs=Subs}) ->
     {reply, {ok, maps:size(Subs)}, State};
+
+handle_call({add_admin_permission, MyToken, Token}, _From, State) ->
+    case adim_rights(MyToken, State) of
+	true ->
+	    {reply, ok, priv_add_admin(Token, State)};
+	_ ->
+	    {reply, error, State}
+    end;
+
+handle_call({revoke_admin_permission, MyToken, Token}, _From, State) ->
+    case adim_rights(MyToken, State) of
+	true ->
+	    {reply, ok, priv_revoke_admin(Token, State)};
+	_ ->
+	    {reply, error, State}
+    end;
 
 handle_call(What, _From, State) ->
     {reply, {error, What}, State}.
@@ -144,6 +168,15 @@ priv_notify(_Payload, []) ->
 priv_notify(Payload, [{Client, Tag}|Rest]) ->
     Client ! {published, Payload, Tag},
     priv_notify(Payload, Rest).
+
+adim_rights(Token, #state{admins=Admins}) ->
+    maps:is_key(Token, Admins).
+
+priv_add_admin(Token, State=#state{admins=Admins}) ->
+    State#state{admins=Admins#{Token => true}}.
+
+priv_revoke_admin(Token, State=#state{admins=Admins}) ->
+    State#state{admins=maps:remove(Token, Admins)}.
 
 %%------------------------------------------------------------------------------
 %% Tests
