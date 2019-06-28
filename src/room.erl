@@ -13,7 +13,8 @@
 -export([start_link/1,
 	 publish/2,
 	 subscribe/3,
-	 unsubscribe/2]).
+	 unsubscribe/2,
+	 count_subscribers/1]).
 
 %% Behaviour
 -export([init/1,
@@ -63,6 +64,15 @@ unsubscribe(Name, Client) when is_binary(Name) ->
 unsubscribe(Room, Client) when is_pid(Room) ->
     gen_server:cast(Room, {unsubscribe, Client}).
 
+-spec count_subscribers(binary() | pid()) -> integer().
+
+count_subscribers(Name) when is_binary(Name) ->
+    {ok, Room} = room_sup:name_to_room(Name),
+    count_subscribers(Room);
+
+count_subscribers(Room) when is_pid(Room) ->
+    gen_server:call(Room, count_subscribers).
+
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
 %%------------------------------------------------------------------------------
@@ -74,6 +84,9 @@ init(Name) ->
     {ok, #state{name=Name, subs=#{}}}.
 
 %% @hidden
+handle_call(count_subscribers, _From, State=#state{subs=Subs}) ->
+    {reply, {ok, maps:size(Subs)}, State};
+
 handle_call(What, _From, State) ->
     {reply, {error, What}, State}.
 
