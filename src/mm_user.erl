@@ -58,9 +58,8 @@ handle_info({tcp_close, _Port}, State) ->
     {stop, normal, State};
 
 handle_info({tcp, _Port, DataNew}, State0=#state{data=DataOld}) ->
-    lager:warning("got new data: ~p", [DataNew]),
     Data = <<DataOld/binary, DataNew/binary>>,
-    lager:warning("total data  : ~p", [Data]),
+    lager:debug("total data  : ~p", [Data]),
 
     case mm_support:correctly_formated(Data) of
 	{ok, Code, Payload, Rest} ->
@@ -76,7 +75,7 @@ handle_info({tcp, _Port, DataNew}, State0=#state{data=DataOld}) ->
     end;
 
 handle_info({published, Payload, Tag}, State) ->
-    lager:warning("send published message with tag ~p", [Tag]),
+    lager:debug("send published message with tag ~p", [Tag]),
     send_response(mm_encode:enter(Tag), State),
     send_response(mm_encode:publish(Payload), State),
     {noreply, State};
