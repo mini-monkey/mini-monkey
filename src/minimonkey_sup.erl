@@ -34,8 +34,6 @@ init([]) ->
     Random = base64:encode(crypto:strong_rand_bytes(?SIZE_RANDOM_GOD_TOKEN)),
     Token = mm_support:binary_env_var("god_token", Random),
 
-    RanchSupSpec = {ranch_sup, {ranch_sup, start_link, []},
-		    permanent, 5000, supervisor, [ranch_sup]},
     ListenerSpec = ranch:child_spec(minimonkey, 100,
 				    ranch_tcp, [{port, 1773}],
 				    mm_user, []),
@@ -45,8 +43,7 @@ init([]) ->
     RoomSup = #{id => mm_room_sup,
 		start => {mm_room_sup, start_link, [Token]}},
 
-    Children = [RanchSupSpec,
-		ListenerSpec,
+    Children = [ListenerSpec,
 		RoomSup,
 		Login],
 
