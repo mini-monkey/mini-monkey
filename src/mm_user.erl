@@ -138,6 +138,18 @@ handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
 	    {reply, mm_encode:msg("ok"), State};
 	_ ->
 	    {reply, mm_encode:err("authorization failed"), State}
+    end;
+
+handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
+					Code =< ?REVOKE_SUBSCRIBE ->
+    #{token := MyToken, room := Room} = State,
+    Mod = code_to_modification(Code),
+    Access = code_to_access_type(Code),
+    case mm_room:permissions(Room, MyToken, Mod, Access, Token) of
+	ok ->
+	    {reply, mm_encode:msg("ok"), State};
+	_ ->
+	    {reply, mm_encode:err("authorization failed"), State}
     end.
 
 note_room(Room, State=#state{rooms=Rooms}) ->
@@ -151,7 +163,19 @@ unsubscribe([Room|Rooms]) ->
     room:unsubscribe(Room, self()),
     unsubscribe(Rooms).
 
+code_to_modification(?ADD_ADMIN) -> add;
+code_to_modification(?REVOKE_ADMIN) -> revoke;
+code_to_modification(?ADD_PUBLISH) -> add;
+code_to_modification(?REVOKE_PUBLISH) -> revoke;
+code_to_modification(?ADD_SUBSCRIBE) -> add;
+code_to_modification(?REVOKE_SUBSCRIBE) -> revoke.
 
+code_to_access_type(?ADD_ADMIN) -> to_admin;
+code_to_access_type(?REVOKE_ADMIN) -> to_admin;
+code_to_access_type(?ADD_PUBLISH) -> to_pub;
+code_to_access_type(?REVOKE_PUBLISH) -> to_pub;
+code_to_access_type(?ADD_SUBSCRIBE) -> to_sub;
+code_to_access_type(?REVOKE_SUBSCRIBE) -> to_sub.
 
 %%------------------------------------------------------------------------------
 %% Tests
