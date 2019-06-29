@@ -5,6 +5,36 @@
 %%%%%%%%%%%%%%%%%%
 %%% Properties %%%
 %%%%%%%%%%%%%%%%%%
+prop_admin_with_wrong_token_test() ->
+    ?FORALL({Token, Name}, {blob(), blob()},
+	    begin
+		mm_room_sup:start_link(?GOD_TOKEN),
+		{ok, Room} = mm_room_sup:create_room(Name),
+		true andalso
+		    error =:= mm_room:permissions(Room, Token, add, to_admin, Token) andalso
+		    error =:= mm_room:permissions(Room, Token, add, to_pub, Token) andalso
+		    error =:= mm_room:permissions(Room, Token, add, to_sub, Token) andalso
+		    error =:= mm_room:permissions(Room, Token, revoke, to_admin, Token) andalso
+		    error =:= mm_room:permissions(Room, Token, revoke, to_pub, Token) andalso
+		    error =:= mm_room:permissions(Room, Token, revoke, to_sub, Token)
+	    end).
+
+prop_admin_with_correct_token_test() ->
+    ?FORALL({Token, Name}, {blob(), blob()},
+	    begin
+		mm_room_sup:start_link(?GOD_TOKEN),
+		{ok, Room} = mm_room_sup:create_room(Name),
+		ok = mm_room:permissions(Room, ?GOD_TOKEN, add, to_admin, Token),
+		true andalso
+		    ok =:= mm_room:permissions(Room, Token, add, to_admin, Token) andalso
+		    ok =:= mm_room:permissions(Room, Token, add, to_pub, Token) andalso
+		    ok =:= mm_room:permissions(Room, Token, add, to_sub, Token) andalso
+		    ok =:= mm_room:permissions(Room, Token, revoke, to_pub, Token) andalso
+		    ok =:= mm_room:permissions(Room, Token, revoke, to_sub, Token) andalso
+		    %% this needs to be last or we cannot admin anymore :)
+		    ok =:= mm_room:permissions(Room, Token, revoke, to_admin, Token)
+	    end).
+
 prop_subscribe_with_wrong_token_test() ->
     ?FORALL({Token, Name, Tag}, {blob(), blob(), blob()},
 	    begin
