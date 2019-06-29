@@ -41,9 +41,13 @@ MiniMonkey only cares about routing blobs.
 Especially it does not use JSON / Protocol-buffers or other serialization.
 
 MiniMonkey is designed around small payloads.
-Moreover, the system should be "simple" enough that anyone can implement a client.
 
-MiniMonkey uses stateful connections where previous _commands_ affect future commands. The reasons is to keep all payloads small.
+MiniMonkey is desgined to be very simple and concise.
+The goal is to reach feature-completion fast and leave as much as possible outside the broker.
+The protocol and architecture should be so easy that anyone can implement a client in under and hour.
+
+MiniMonkey uses stateful connections where previous _commands_ affect future commands.
+The reasons is to keep all payloads small.
 
 All messages, both to and from the server follow a trivial binary protocol.
 
@@ -53,24 +57,23 @@ All messages, both to and from the server follow a trivial binary protocol.
 N bytes : Optional payload
 ```
 
-God Token
----------
+Bootstrap and the God Token
+---------------------------
 
-Then MiniMonkey starts it will read the environment variable
+Then MiniMonkey starts it will read the environment variable **god_token**.
+The purpose is to have one token that can bootstrap the broker.
+This token can be used to provision the broker and the routing keys (rooms).
 
 | Variable  | Comment                                 |
 |-----------|-----------------------------------------|
 | god_token | A token that has all rights             |
 
 
-```
-export god_token="myToken"
-```
-
 Port
 ----
 
-MiniMonkey uses one port:
+MiniMonkey only uses one port **1773**.
+Connections are made over TCP/IP.
 
 | Port | Comment                                 |
 |------|-----------------------------------------|
