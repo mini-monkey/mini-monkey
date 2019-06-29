@@ -9,7 +9,7 @@ Mini Monkey (pre-alpha)
 ![Logo](doc/minimonkey_small.png)
 
 MiniMonkey is a minimal message routing system.
-Considerably smaller and simpler than MQTT.
+Considerably smaller and simpler than [MQTT](https://en.wikipedia.org/wiki/MQTT).
 
 It should be possible to implement a client in under one hour.
 
