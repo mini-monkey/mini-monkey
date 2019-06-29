@@ -1,5 +1,5 @@
-MiniMonkey
-==========
+Mini Monkey (pre-alpha)
+=======================
 
 [![License Apache 2](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/Raphexion/minimonkey.svg?branch=master)](https://travis-ci.org/Raphexion/minimonkey)
@@ -12,6 +12,13 @@ MiniMonkey is a minimal message routing system.
 Considerably smaller and simpler than MQTT.
 
 It should be possible to implement a client in under one hour.
+
+Project Plan
+------------
+
+- [ ] Add benchmark tests
+- [ ] Add more tests concerning permissions
+- [ ] Add more examples in README
 
 Three perspectives
 ------------------
