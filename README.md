@@ -87,6 +87,7 @@ Function Codes
 | 0x13 | Revoke publish permissions for token                            |
 | 0x14 | Add subscription permissions for token                          |
 | 0x15 | Revoke subscription permissions for token                       |
+| 0xEE | Error message                                                   |
 | 0xFF | Debug message                                                   |
 
 Examples
