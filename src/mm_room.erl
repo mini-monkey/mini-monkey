@@ -14,14 +14,8 @@
 	 publish/3,
 	 subscribe/4,
 	 unsubscribe/2,
-	 count_subscribers/1]).
-
--export([add_admin_permission/3,
-	 revoke_admin_permission/3]).
--export([add_subscriber_permission/3,
-	 revoke_subscriber_permission/3]).
--export([add_publisher_permission/3,
-	 revoke_publisher_permission/3]).
+	 count_subscribers/1,
+	 permissions/5]).
 
 %% Behaviour
 -export([init/1,
@@ -50,23 +44,8 @@ unsubscribe(Room, Client) ->
 count_subscribers(Room) ->
     gen_server:call(safe_room(Room), count_subscribers).
 
-add_admin_permission(Room, MyToken, Token) ->
-    gen_server:call(safe_room(Room), {add_admin_permission, MyToken, Token}).
-
-revoke_admin_permission(Room, MyToken, Token) ->
-    gen_server:call(safe_room(Room), {revoke_admin_permission, MyToken, Token}).
-
-add_subscriber_permission(Room, MyToken, Token) ->
-    gen_server:call(safe_room(Room), {add_subscriber_permission, MyToken, Token}).
-
-revoke_subscriber_permission(Room, MyToken, Token) ->
-    gen_server:call(safe_room(Room), {revoke_subscriber_permission, MyToken, Token}).
-
-add_publisher_permission(Room, MyToken, Token) ->
-    gen_server:call(safe_room(Room), {add_publisher_permission, MyToken, Token}).
-
-revoke_publisher_permission(Room, MyToken, Token) ->
-    gen_server:call(safe_room(Room), {revoke_publisher_permission, MyToken, Token}).
+permissions(Room, MyToken, Modification, AccessType, Token) ->
+    gen_server:call(safe_room(Room), {permissions, MyToken, Modification, AccessType, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
@@ -76,9 +55,10 @@ revoke_publisher_permission(Room, MyToken, Token) ->
 	  name,
 	  god_token,
 	  subs = #{},
-	  admins = #{},
-	  pub_perms = #{},
-	  sub_perms = #{},
+	  permissions = #{
+	    to_admin => #{},
+	    to_pub => #{},
+	    to_sub => #{}},
 	  last = <<>>,
 	  published=0
 	 }).
@@ -89,7 +69,7 @@ init([GodToken, Name]) ->
 
 %% @hidden
 handle_call({publish, Token, Payload}, _From, State) ->
-    case publisher_rights(Token, State) of
+    case rights(to_pub, Token, State) of
 	true ->
 	    {reply, ok, priv_publish(Payload, State)};
 	false ->
@@ -97,7 +77,7 @@ handle_call({publish, Token, Payload}, _From, State) ->
     end;
 
 handle_call({subscribe, Token, Client, Tag}, _From, State) ->
-    case subscriber_rights(Token, State) of
+    case rights(to_sub, Token, State) of
 	true ->
 	    {reply, ok, priv_subscribe(Client, Tag, State)};
 	_ ->
@@ -107,50 +87,10 @@ handle_call({subscribe, Token, Client, Tag}, _From, State) ->
 handle_call(count_subscribers, _From, State=#state{subs=Subs}) ->
     {reply, {ok, maps:size(Subs)}, State};
 
-handle_call({add_admin_permission, MyToken, Token}, _From, State) ->
-    case admin_rights(MyToken, State) of
+handle_call({permissions, MyToken, Modification, AccessType, Token}, _From, State) ->
+    case rights(to_admin, MyToken, State) of
 	true ->
-	    {reply, ok, priv_add_admin(Token, State)};
-	_ ->
-	    {reply, error, State}
-    end;
-
-handle_call({revoke_admin_permission, MyToken, Token}, _From, State) ->
-    case admin_rights(MyToken, State) of
-	true ->
-	    {reply, ok, priv_revoke_admin(Token, State)};
-	_ ->
-	    {reply, error, State}
-    end;
-
-handle_call({add_subscriber_permission, MyToken, Token}, _From, State) ->
-    case subscriber_rights(MyToken, State) of
-	true ->
-	    {reply, ok, priv_add_subscriber(Token, State)};
-	_ ->
-	    {reply, error, State}
-    end;
-
-handle_call({revoke_subscriber_permission, MyToken, Token}, _From, State) ->
-    case subscriber_rights(MyToken, State) of
-	true ->
-	    {reply, ok, priv_revoke_subscriber(Token, State)};
-	_ ->
-	    {reply, error, State}
-    end;
-
-handle_call({add_publisher_permission, MyToken, Token}, _From, State) ->
-    case publisher_rights(MyToken, State) of
-	true ->
-	    {reply, ok, priv_add_publisher(Token, State)};
-	_ ->
-	    {reply, error, State}
-    end;
-
-handle_call({revoke_publisher_permission, MyToken, Token}, _From, State) ->
-    case publisher_rights(MyToken, State) of
-	true ->
-	    {reply, ok, priv_revoke_publisher(Token, State)};
+	    {reply, ok, priv_permissions(Modification, AccessType, Token, State)};
 	_ ->
 	    {reply, error, State}
     end;
@@ -198,48 +138,30 @@ priv_notify(Payload, [{Client, Tag}|Rest]) ->
     Client ! {published, Payload, Tag},
     priv_notify(Payload, Rest).
 
-admin_rights(Token, #state{god_token=Token}) ->
+priv_permissions(add, AccessType, Token, State) ->
+    priv_add_permissions(AccessType, Token, State);
+priv_permissions(revoke, AccessType, Token, State) ->
+    priv_revoke_permissions(AccessType, Token, State).
+
+priv_add_permissions(AccessType, Token, State=#state{permissions=Permissions}) ->
+    #{AccessType := Previous} = Permissions,
+    State#state{permissions=Permissions#{AccessType => Previous#{Token => true}}}.
+
+priv_revoke_permissions(AccessType, Token, State=#state{permissions=Permissions}) ->
+    #{AccessType := Previous} = Permissions,
+    State#state{permissions=Permissions#{AccessType => maps:remove(Token, Previous)}}.
+
+rights(_, Token, #state{god_token=Token}) ->
     true;
-admin_rights(Token, #state{admins=Admins}) ->
-    maps:is_key(Token, Admins).
-
-publisher_rights(Token, #state{god_token=Token}) ->
-    true;
-publisher_rights(Token, #state{pub_perms=PubPerms}) ->
-    maps:is_key(Token, PubPerms).
-
-subscriber_rights(Token, #state{god_token=Token}) ->
-    true;
-subscriber_rights(Token, #state{sub_perms=SubPerms}) ->
-    maps:is_key(Token, SubPerms).
-
-priv_add_admin(Token, State=#state{admins=Admins}) ->
-    State#state{admins=Admins#{Token => true}}.
-
-priv_revoke_admin(Token, State=#state{admins=Admins}) ->
-    State#state{admins=maps:remove(Token, Admins)}.
-
-priv_add_subscriber(Token, State=#state{sub_perms=SubPerms}) ->
-    State#state{sub_perms=SubPerms#{Token => true}}.
-
-priv_revoke_subscriber(Token, State=#state{sub_perms=SubPerms}) ->
-    State#state{sub_perms=maps:remove(Token, SubPerms)}.
-
-priv_add_publisher(Token, State=#state{pub_perms=SubPerms}) ->
-    State#state{pub_perms=SubPerms#{Token => true}}.
-
-priv_revoke_publisher(Token, State=#state{pub_perms=PubPerms}) ->
-    State#state{pub_perms=maps:remove(Token, PubPerms)}.
+rights(AccessType, Token, #state{permissions=Permissions}) ->
+    #{AccessType := Current} = Permissions,
+    maps:is_key(Token, Current).
 
 safe_room(Name) when is_binary(Name) ->
     {ok, Room} = mm_room_sup:name_to_room(Name),
     Room;
 safe_room(Room) when is_pid(Room) ->
-    Room;
-safe_room(Room) ->
-    lager:warning("safe room failed for ~p", [Room]),
-    {error, safe_room}.
-
+    Room.
 
 %%------------------------------------------------------------------------------
 %% Tests
