@@ -14,5 +14,8 @@
 -define(ADD_SUBSCRIBE, 16#14).
 -define(REVOKE_SUBSCRIBE, 16#15).
 
+-define(ADD_LOGIN, 16#16).
+-define(REVOKE_LOGIN, 16#17).
+
 -define(ERR, 16#EE).
 -define(MSG, 16#FF).
