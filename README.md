@@ -8,7 +8,7 @@ Mini Monkey (pre-alpha)
 
 ![Logo](doc/minimonkey_small.png)
 
-MiniMonkey is a minimal message routing system.
+Mini Monkey is a minimal message routing system.
 Considerably smaller and simpler than [MQTT](https://en.wikipedia.org/wiki/MQTT).
 
 It should be possible to implement a client in under one hour.
@@ -23,7 +23,7 @@ Project Plan
 Three perspectives
 ------------------
 
-When designing MiniMonkey we need to focus on our three users:
+When designing Mini Monkey we need to focus on our three users:
 
 1. Controllers that want to primarily consume data and control devices
 2. Devices that primarily will produce data and be be controlled
@@ -34,19 +34,19 @@ When designing MiniMonkey we need to focus on our three users:
 Design decisions
 ----------------
 
-MiniMonkey is a publish / subscribe broker than only support routing keys.
+Mini Monkey is a publish / subscribe broker than only support routing keys.
 Especially it does not implement topics.
 
-MiniMonkey only cares about routing blobs.
+Mini Monkey only cares about routing blobs.
 Especially it does not use JSON / Protocol-buffers or other serialization.
 
-MiniMonkey is designed around small payloads.
+Mini Monkey is designed around small payloads.
 
-MiniMonkey is desgined to be very simple and concise.
+Mini Monkey is desgined to be very simple and concise.
 The goal is to reach feature-completion fast and leave as much as possible outside the broker.
 The protocol and architecture should be so easy that anyone can implement a client in under and hour.
 
-MiniMonkey uses stateful connections where previous _commands_ affect future commands.
+Mini Monkey uses stateful connections where previous _commands_ affect future commands.
 The reasons is to keep all payloads small.
 
 All messages, both to and from the server follow a trivial binary protocol.
@@ -60,7 +60,7 @@ N bytes : Optional payload
 Bootstrap and the God Token
 ---------------------------
 
-Then MiniMonkey starts it will read the environment variable **god_token**.
+Then Mini Monkey starts it will read the environment variable **god_token**.
 The purpose is to have one token that can bootstrap the broker.
 This token can be used to provision the broker and the routing keys (rooms).
 
@@ -72,7 +72,7 @@ This token can be used to provision the broker and the routing keys (rooms).
 Port
 ----
 
-MiniMonkey only uses one port **1773**.
+Mini Monkey only uses one port **1773**.
 Connections are made over TCP/IP.
 
 | Port | Comment                                 |
