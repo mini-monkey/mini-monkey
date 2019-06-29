@@ -19,6 +19,7 @@ Project Plan
 - [ ] Add benchmark tests
 - [ ] Add more tests concerning permissions
 - [ ] Add more examples in README
+- [ ] Death Message
 
 Three perspectives
 ------------------
@@ -79,6 +80,12 @@ Connections are made over TCP/IP.
 |------|-----------------------------------------|
 | 1773 | Controllers, Devices and Administrators |
 
+Death Message
+-------------
+
+Sometimes it is good to communicate when a user disappears.
+It is therefore (not implemented yet) to set a message, that
+will be delivered if the user disconnects unexpected.
 
 Function Codes
 --------------
@@ -99,6 +106,10 @@ Function Codes
 | 0x15 | Revoke subscription permissions for token                       |
 | 0x16 | Add login                                                       |
 | 0x17 | Revoke login                                                    |
+| 0x20 | Set death message payload                                       |
+| 0x21 | Set death message room                                          |
+| 0x22 | Enable death message                                            |
+| 0x23 | Disable death message                                           |
 | 0xEE | Error message                                                   |
 | 0xFF | Debug message                                                   |
 
