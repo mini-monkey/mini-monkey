@@ -153,9 +153,9 @@ handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
     Access = code_to_access_type(Code),
     case mm_room:permissions(Room, MyToken, Mod, Access, Token) of
 	ok ->
-	    {reply, mm_encode:msg("ok"), State};
+	    {reply, mm_encode:permissions_successful(), State};
 	_ ->
-	    {reply, mm_encode:err("authorization failed"), State}
+	    {reply, mm_encode:permissions_failure(), State}
     end.
 
 note_room(Room, State=#state{rooms=Rooms}) ->

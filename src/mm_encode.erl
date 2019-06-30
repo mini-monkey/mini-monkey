@@ -1,9 +1,6 @@
 -module(mm_encode).
 -include("codes.hrl").
 
--export([err/1,
-	 msg/1]).
-
 -export([login/1]).
 -export([login_successful/0,
 	 login_failure/0]).
@@ -20,15 +17,8 @@
 -export([subscribe_successful/0,
 	 subscribe_failure/0]).
 
-%%------------------------------------------------------------------------------
-%% General Message
-%%------------------------------------------------------------------------------
-
-err(Msg) ->
-    encode_payload(?ERR, Msg).
-
-msg(Msg) ->
-    encode_payload(?MSG, Msg).
+-export([permissions_successful/0,
+	 permissions_failure/0]).
 
 %%------------------------------------------------------------------------------
 %% Login
@@ -84,6 +74,16 @@ subscribe_successful() ->
 
 subscribe_failure() ->
     encode_failure("subscribe").
+
+%%------------------------------------------------------------------------------
+%% Permissions
+%%------------------------------------------------------------------------------
+
+permissions_successful() ->
+    encode_success("permissions").
+
+permissions_failure() ->
+    encode_failure("permissions").
 
 %%------------------------------------------------------------------------------
 %% Private
