@@ -5,6 +5,9 @@
 	 allow_admin/2,
 	 allow_subscribe/2,
 	 allow_publish/2,
+	 disallow_admin/2,
+	 disallow_subscribe/2,
+	 disallow_publish/2,
 	 clear/1]).
 
 setup() ->
@@ -20,6 +23,15 @@ allow_subscribe(Room, Token) ->
 
 allow_publish(Room, Token) ->
     ok =:= mm_room:permissions(Room, god_token(), add, to_pub, Token).
+
+disallow_admin(Room, Token) ->
+    ok =:= mm_room:permissions(Room, god_token(), revoke, to_admin, Token).
+
+disallow_subscribe(Room, Token) ->
+    ok =:= mm_room:permissions(Room, god_token(), revoke, to_sub, Token).
+
+disallow_publish(Room, Token) ->
+    ok =:= mm_room:permissions(Room, god_token(), revoke, to_pub, Token).
 
 clear({ok, Payload}) ->
     clear(Payload);

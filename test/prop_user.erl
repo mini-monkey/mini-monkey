@@ -3,7 +3,10 @@
 -import(mm_test_common, [setup/0,
 			 allow_admin/2,
 			 allow_subscribe/2,
-			 allow_publish/2]).
+			 allow_publish/2,
+			 disallow_admin/2,
+			 disallow_subscribe/2,
+			 disallow_publish/2]).
 
 %%%%%%%%%%%%%%%%%%
 %%% Properties %%%
@@ -40,6 +43,14 @@ prop_user_minimal_pub_sub_test() ->
 
 		%% receive messaage
 		    receive_content(Sock1, Tag, Content) andalso
+
+		%% revoke permissions
+		    disallow_subscribe(Room, Token1) andalso
+		    disallow_publish(Room, Token2) andalso
+
+		%% make sure we cannot subscribe and publish
+		    cannot_subscribe(Sock1, Tag) andalso
+		    cannot_publish(Sock2, Content) andalso
 
 		%% clean-up
 		    close(Sock1) andalso
@@ -121,7 +132,7 @@ prop_admin_for_sub() ->
 	    end).
 
 prop_enter_without_login() ->
-    ?FORALL({Name, Token, Room}, {blob(), blob(), blob()},
+    ?FORALL({Token, Room}, {blob(), blob()},
 	    begin
 		mm_test_common:setup(),
 		login:add_token(Token),
@@ -138,7 +149,7 @@ prop_enter_without_login() ->
 	    end).
 
 prop_pub_without_enter() ->
-    ?FORALL({Name, Token, Room, Content}, {blob(), blob(), blob(), blob()},
+    ?FORALL({Token, Content}, {blob(), blob()},
 	    begin
 		mm_test_common:setup(),
 		login:add_token(Token),
