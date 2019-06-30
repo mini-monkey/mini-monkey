@@ -82,6 +82,9 @@ handle_info({published, Payload, Tag}, State) ->
     send_response(mm_encode:publish(Payload), State),
     {noreply, State};
 
+handle_info({handshake, minimonkey, _, _, _}, State) ->
+    {noreply, State};
+
 handle_info(What, State) ->
     lager:warning("unhandle info ~p", [What]),
     {noreply, State}.
@@ -111,10 +114,10 @@ handle_payload(?AUTH, Token, State) ->
     lager:debug("auth with ~p", [Token]),
     case login:attempt(Token) of
 	ok ->
-	    {reply, mm_encode:msg("logged in"), State#state{token=Token}};
+	    {reply, mm_encode:login_successful(), State#state{token=Token}};
 	_ ->
 	    timer:sleep(?LOGIN_ERROR_SPEEDBUMP_MS),
-	    {reply, mm_encode:err("login failed"), State}
+	    {reply, mm_encode:login_failure(), State}
     end;
 
 handle_payload(_, _, State=#state{token=missing}) ->
@@ -122,22 +125,22 @@ handle_payload(_, _, State=#state{token=missing}) ->
 
 handle_payload(?ENTER, Room, State) ->
     mm_room_sup:create_room(Room),
-    {reply, mm_encode:msg("ok"), note_room(Room, State)};
+    {reply, mm_encode:enter_successful(), note_room(Room, State)};
 
 handle_payload(?PUB, Data, State=#state{token=Token, room=Room}) ->
     case mm_room:publish(Room, Token, Data) of
 	ok ->
-	    {reply, mm_encode:msg("ok"), State};
+	    {reply, mm_encode:publish_successful(), State};
 	_ ->
-	    {reply, mm_encode:err("authorization failed"), State}
+	    {reply, mm_encode:publish_failure(), State}
     end;
 
 handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
     case mm_room:subscribe(Room, Token, self(), Tag) of
 	ok ->
-	    {reply, mm_encode:msg("ok"), State};
+	    {reply, mm_encode:subscribe_successful(), State};
 	_ ->
-	    {reply, mm_encode:err("authorization failed"), State}
+	    {reply, mm_encode:subscribe_failure(), State}
     end;
 
 handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
