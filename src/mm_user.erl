@@ -120,7 +120,8 @@ handle_payload(?AUTH, Token, State) ->
     end;
 
 handle_payload(_, _, State=#state{token=missing}) ->
-    {reply, mm_encode:err("please login"), State};
+    timer:sleep(?LOGIN_ERROR_SPEEDBUMP_MS),
+    {reply, mm_encode:login_failure(), State};
 
 handle_payload(?ENTER, Room, State) ->
     mm_room_sup:create_room(Room),
