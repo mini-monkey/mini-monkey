@@ -9,7 +9,8 @@
 prop_room_minimal_test() ->
     ?FORALL({Name, Content, Tag}, {blob(), blob(), blob()},
 	    begin
-		mm_room_sup:start_link(god_token()),
+		mm_test_common:setup(),
+
 		{ok, User} = mock_user:start_link(),
 		{ok, Room} = mm_room_sup:create_room(Name),
 		{ok, 0} = mm_room:count_subscribers(Name),
@@ -25,7 +26,8 @@ prop_room_minimal_test() ->
 prop_room_minimal_multi_test() ->
     ?FORALL({Name, Contents, Tag}, {blob(), blobs(), blob()},
 	    begin
-		mm_room_sup:start_link(god_token()),
+		mm_test_common:setup(),
+
 		{ok, User} = mock_user:start_link(),
 		{ok, Room} = mm_room_sup:create_room(Name),
 		{ok, 0} = mm_room:count_subscribers(Name),
