@@ -120,6 +120,24 @@ prop_admin_for_sub() ->
 		    close(Sock2)
 	    end).
 
+prop_enter_without_login() ->
+    ?FORALL({Name, Token, Room}, {blob(), blob(), blob()},
+	    begin
+		mm_test_common:setup(),
+		login:add_token(Token),
+
+		%% make the connections
+		{ok, Sock} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),
+
+		%% attempt to enter without logging in
+		cannot_enter(Sock, Token) andalso
+
+		%% login and succeed to enter
+		    login(Sock, Token) andalso
+		    enter(Sock, Room)
+	    end).
+
+
 %%%%%%%%%%%%%%%%%%
 %%% Helpers    %%%
 %%%%%%%%%%%%%%%%%%
@@ -134,6 +152,10 @@ login(Sock, Token) ->
 enter(Sock, Room) ->
     ok = gen_tcp:send(Sock, mm_encode:enter(Room)),
     {ok, mm_encode:enter_successful()} =:= gen_tcp:recv(Sock, 0).
+
+cannot_enter(Sock, Room) ->
+    ok = gen_tcp:send(Sock, mm_encode:enter(Room)),
+    {ok, mm_encode:login_failure()} =:= gen_tcp:recv(Sock, 0).
 
 subscribe(Sock, Tag) ->
     ok = gen_tcp:send(Sock, mm_encode:subscribe(Tag)),

@@ -9,7 +9,12 @@
 -module(mm_user).
 -behaviour(gen_server).
 -include("codes.hrl").
+
+-ifdef(TEST).
+-define(LOGIN_ERROR_SPEEDBUMP_MS, 0).
+-else.
 -define(LOGIN_ERROR_SPEEDBUMP_MS, 500).
+-endif.
 
 %% API
 -export([start_link/4]).
@@ -90,7 +95,7 @@ handle_info(What, State) ->
     {noreply, State}.
 
 %% @hidden
-terminate(Reason, State) ->
+terminate(_Reason, State) ->
     unsubscribe(State),
     ok.
 

@@ -106,7 +106,7 @@ encode_success(Message) ->
 -spec encode_failure(string()) -> binary().
 
 encode_failure(Message) ->
-    encode_payload(?ERR, list_to_binary(Message ++ " failureful")).
+    encode_payload(?ERR, list_to_binary(Message ++ " failure")).
 
 -spec encode_payload(integer(), binary() | string()) -> binary().
 encode_payload(Code, Payload) when is_list(Payload) ->
