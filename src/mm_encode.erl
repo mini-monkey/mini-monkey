@@ -12,10 +12,13 @@
 -export([enter_successful/0,
 	 enter_failure/0]).
 
-
 -export([publish/1]).
 -export([publish_successful/0,
 	 publish_failure/0]).
+
+-export([subscribe/1]).
+-export([subscribe_successful/0,
+	 subscribe_failure/0]).
 
 %%------------------------------------------------------------------------------
 %% General Message
@@ -37,11 +40,11 @@ login(Token) ->
 
 -spec login_successful() -> binary().
 login_successful() ->
-    encode_payload(?MSG, <<"login successful">>).
+    encode_success("login").
 
 -spec login_failure() -> binary().
 login_failure() ->
-    encode_payload(?ERR, <<"login failure">>).
+    encode_failure("login").
 
 %%------------------------------------------------------------------------------
 %% Publish
@@ -51,10 +54,10 @@ enter(Data) ->
     encode_payload(?ENTER, Data).
 
 enter_successful() ->
-    encode_payload(?MSG, <<"enter successful">>).
+    encode_success("enter").
 
 enter_failure() ->
-    encode_payload(?ERR, <<"enter failure">>).
+    encode_failure("enter").
 
 %%------------------------------------------------------------------------------
 %% Publish
@@ -64,17 +67,39 @@ publish(Data) ->
     encode_payload(?PUB, Data).
 
 publish_successful() ->
-    encode_payload(?MSG, <<"publish successful">>).
+    encode_success("publish").
 
 publish_failure() ->
-    encode_payload(?ERR, <<"publish failure">>).
+    encode_failure("publish").
+
+%%------------------------------------------------------------------------------
+%% Subscribe
+%%------------------------------------------------------------------------------
+
+subscribe(Data) ->
+    encode_payload(?SUB, Data).
+
+subscribe_successful() ->
+    encode_success("subscribe").
+
+subscribe_failure() ->
+    encode_failure("subscribe").
 
 %%------------------------------------------------------------------------------
 %% Private
 %%------------------------------------------------------------------------------
 
--spec encode_payload(integer(), binary() | string()) -> binary().
+-spec encode_success(string()) -> binary().
 
+encode_success(Message) ->
+    encode_payload(?MSG, list_to_binary(Message ++ " successful")).
+
+-spec encode_failure(string()) -> binary().
+
+encode_failure(Message) ->
+    encode_payload(?ERR, list_to_binary(Message ++ " failureful")).
+
+-spec encode_payload(integer(), binary() | string()) -> binary().
 encode_payload(Code, Payload) when is_list(Payload) ->
     encode_payload(Code, list_to_binary(Payload));
 
