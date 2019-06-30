@@ -46,7 +46,7 @@ handle_call({is_god_token, Token}, _From, State=#{god := GodToken}) ->
     {reply, Token =:= GodToken, State};
 
 handle_call(What, _From, State) ->
-    {reply, {eror, What}, State}.
+    {reply, {error, What}, State}.
 
 handle_cast({add, Token}, State) ->
     ets:insert(?MODULE, {Token, true}),
