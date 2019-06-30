@@ -4,7 +4,8 @@
 
 -export([start_link/1,
 	 attempt/1,
-	 add_token/1]).
+	 add_token/1,
+	 is_god_token/1]).
 
 -export([init/1,
 	 handle_call/3,
@@ -22,6 +23,9 @@ attempt(Token) ->
 add_token(Token) ->
     gen_server:cast(?MODULE, {add, Token}).
 
+is_god_token(Token) ->
+    gen_server:call(?MODULE, {is_god_token, Token}).
+
 init(Token) ->
     ets:new(?MODULE, [set, named_table]),
     ets:insert(?MODULE, {Token, true}),
@@ -37,6 +41,9 @@ handle_call({attempt, Token}, _From, State) ->
 	_ ->
 	    {reply, error, State}
     end;
+
+handle_call({is_god_token, Token}, _From, State=#{god := GodToken}) ->
+    {reply, Token =:= GodToken, State};
 
 handle_call(What, _From, State) ->
     {reply, {eror, What}, State}.
