@@ -158,6 +158,8 @@ handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
 note_room(Room, State=#state{rooms=Rooms}) ->
     State#state{room=Room, rooms=Rooms#{Room => true}}.
 
+unsubscribe(#state{rooms=#{}}) ->
+    ok;
 unsubscribe(#state{rooms=Rooms}) ->
     unsubscribe(Rooms);
 unsubscribe([]) ->
