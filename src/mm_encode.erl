@@ -20,6 +20,9 @@
 -export([permissions_successful/0,
 	 permissions_failure/0]).
 
+-export([allow_publish/1,
+	 allow_subscribe/1]).
+
 %%------------------------------------------------------------------------------
 %% Login
 %%------------------------------------------------------------------------------
@@ -84,6 +87,12 @@ permissions_successful() ->
 
 permissions_failure() ->
     encode_failure("permissions").
+
+allow_publish(Token) ->
+    encode_payload(?ADD_PUBLISH, Token).
+
+allow_subscribe(Token) ->
+    encode_payload(?ADD_SUBSCRIBE, Token).
 
 %%------------------------------------------------------------------------------
 %% Private

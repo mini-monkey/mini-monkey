@@ -148,7 +148,7 @@ handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
 
 handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
 					Code =< ?REVOKE_SUBSCRIBE ->
-    #{token := MyToken, room := Room} = State,
+    #state{token=MyToken, room=Room} = State,
     Mod = code_to_modification(Code),
     Access = code_to_access_type(Code),
     case mm_room:permissions(Room, MyToken, Mod, Access, Token) of
