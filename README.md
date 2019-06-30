@@ -51,14 +51,6 @@ The protocol and architecture should be so easy that anyone can implement a clie
 Mini Monkey uses stateful connections where previous _commands_ affect future commands.
 The reasons is to keep all payloads small.
 
-All messages, both to and from the server follow a trivial binary protocol.
-
-```
-1 byte  : Function Code
-2 byte  : Payload length
-N bytes : Optional payload
-```
-
 Bootstrap and the God Token
 ---------------------------
 
@@ -87,6 +79,17 @@ Death Message
 Sometimes it is good to communicate when a user disappears.
 It is therefore (not implemented yet) to set a message, that
 will be delivered if the user disconnects unexpected.
+
+Protocal
+--------
+
+All messages, both to and from the server follow a trivial binary protocol.
+
+| Size    | Comment                          |
+|---------|----------------------------------|
+| 1 byte  | Function Code                    |
+| 2 bytes | Payload size (little endian)     |
+| N bytes | Optional payload                 |
 
 Function Codes
 --------------
