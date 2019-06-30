@@ -37,7 +37,7 @@ start_link(_Ref, Socket, Transport, Opts) ->
 		transport,
 		data = <<>>,
 		token = missing,
-		room = <<>>,
+		room = missing,
 		rooms = #{}  %% needed so we can unsubscribe
 	       }).
 
@@ -126,6 +126,9 @@ handle_payload(_, _, State=#state{token=missing}) ->
 handle_payload(?ENTER, Room, State) ->
     mm_room_sup:create_room(Room),
     {reply, mm_encode:enter_successful(), note_room(Room, State)};
+
+handle_payload(_, _, State=#state{room=missing}) ->
+    {reply, mm_encode:err("please enter room"), State};
 
 handle_payload(?PUB, Data, State=#state{token=Token, room=Room}) ->
     case mm_room:publish(Room, Token, Data) of
