@@ -56,7 +56,7 @@ handle_cast(What, State) ->
     {noreply, State}.
 
 %% @hidden
-handle_info({tcp_close, _Port}, State) ->
+handle_info({tcp_closed, _Port}, State) ->
     {stop, normal, State};
 
 handle_info({tcp, _Port, DataNew}, State0=#state{data=DataOld}) ->
@@ -91,7 +91,6 @@ handle_info(What, State) ->
 
 %% @hidden
 terminate(Reason, State) ->
-    lager:warning("terminate ~p", [Reason]),
     unsubscribe(State),
     ok.
 
