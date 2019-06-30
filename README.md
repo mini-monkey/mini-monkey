@@ -16,6 +16,7 @@ It should be possible to implement a client in under one hour.
 Project Plan
 ------------
 
+- [ ] Streamline debug/error messages
 - [ ] Add benchmark tests
 - [ ] Add more tests concerning permissions
 - [ ] Add more examples in README
