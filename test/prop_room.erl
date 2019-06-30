@@ -13,14 +13,12 @@ prop_room_minimal_test() ->
 
 		{ok, User} = mock_user:start_link(),
 		{ok, Room} = mm_room_sup:create_room(Name),
-		{ok, 0} = mm_room:count_subscribers(Name),
 		ok =  mm_room:subscribe(Room, god_token(), User, Tag),
 		ok = mm_room:publish(Room, god_token(), Content),
 		timer:sleep(10),
 		Result = mock_user:messages(User),
 		mm_room:unsubscribe(Room, User),
-		[{published, Content, Tag}] =:= Result andalso
-		    {ok, 0} =:= mm_room:count_subscribers(Name)
+		[{published, Content, Tag}] =:= Result
 	    end).
 
 prop_room_minimal_multi_test() ->
@@ -30,14 +28,12 @@ prop_room_minimal_multi_test() ->
 
 		{ok, User} = mock_user:start_link(),
 		{ok, Room} = mm_room_sup:create_room(Name),
-		{ok, 0} = mm_room:count_subscribers(Name),
 		ok = mm_room:subscribe(Room, god_token(), User, Tag),
 		ok = publish_many(Room, god_token(), Contents),
 		timer:sleep(10),
 		Result = mock_user:messages(User),
 		mm_room:unsubscribe(Room, User),
-		Result =:= contents_to_result(Contents, Tag) andalso
-		    {ok, 0} =:= mm_room:count_subscribers(Name)
+		Result =:= contents_to_result(Contents, Tag)
 	    end).
 
 %%%%%%%%%%%%%%%

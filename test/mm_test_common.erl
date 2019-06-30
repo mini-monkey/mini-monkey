@@ -7,7 +7,7 @@
 	 clear/1]).
 
 setup() ->
-    os:set_env_var("god_token", binary_to_list(god_token())),
+    os:putenv("god_token", binary_to_list(god_token())),
     application:ensure_all_started(minimonkey),
     true = login:is_god_token(god_token()).
 
