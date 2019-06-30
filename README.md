@@ -13,6 +13,13 @@ Considerably smaller and simpler than [MQTT](https://en.wikipedia.org/wiki/MQTT)
 
 It should be possible to implement a client in under one hour.
 
+Quick Start
+-----------
+
+```sh
+docker run -d -p 1773:1773 -e god_token=myToken raphexion/minimonkey
+```
+
 Project Plan
 ------------
 
