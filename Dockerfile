@@ -4,7 +4,7 @@ WORKDIR /build
 COPY . /build
 RUN rebar3 as prod tar
 
-FROM alpine:latest
+FROM alpine:3.9
 
 RUN apk --upgrade add --no-cache ncurses-dev zlib-dev bash strace
 
