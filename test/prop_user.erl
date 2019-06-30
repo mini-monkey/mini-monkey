@@ -137,6 +137,20 @@ prop_enter_without_login() ->
 		    enter(Sock, Room)
 	    end).
 
+prop_pub_without_enter() ->
+    ?FORALL({Name, Token, Room, Content}, {blob(), blob(), blob(), blob()},
+	    begin
+		mm_test_common:setup(),
+		login:add_token(Token),
+
+		%% make the connections and login
+		{ok, Sock} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),
+		login(Sock, Token) andalso
+
+		%% attempt to enter without logging in
+		    room_error_for_publish(Sock, Content)
+	    end).
+
 
 %%%%%%%%%%%%%%%%%%
 %%% Helpers    %%%
@@ -165,12 +179,12 @@ cannot_subscribe(Sock, Tag) ->
     ok = gen_tcp:send(Sock, mm_encode:subscribe(Tag)),
     {ok, mm_encode:subscribe_failure()} =:= gen_tcp:recv(Sock, 0).
 
-publish(Sock, Tag) ->
-    ok = gen_tcp:send(Sock, mm_encode:publish(Tag)),
+publish(Sock, Content) ->
+    ok = gen_tcp:send(Sock, mm_encode:publish(Content)),
     {ok, mm_encode:publish_successful()} =:= gen_tcp:recv(Sock, 0).
 
-cannot_publish(Sock, Tag) ->
-    ok = gen_tcp:send(Sock, mm_encode:publish(Tag)),
+cannot_publish(Sock, Content) ->
+    ok = gen_tcp:send(Sock, mm_encode:publish(Content)),
     {ok, mm_encode:publish_failure()} =:= gen_tcp:recv(Sock, 0).
 
 receive_content(Sock, Tag, Content) ->
@@ -186,6 +200,10 @@ admin_publish(Sock, Token) ->
 admin_subscribe(Sock, Token) ->
     ok = gen_tcp:send(Sock, mm_encode:allow_subscribe(Token)),
     {ok, mm_encode:permissions_successful()} =:= gen_tcp:recv(Sock, 0).
+
+room_error_for_publish(Sock, Content) ->
+    ok = gen_tcp:send(Sock, mm_encode:publish(Content)),
+    {ok, mm_encode:room_failure()} =:= gen_tcp:recv(Sock, 0).
 
 %%%%%%%%%%%%%%%%%%
 %%% Generators %%%

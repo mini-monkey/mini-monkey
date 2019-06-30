@@ -133,7 +133,7 @@ handle_payload(?ENTER, Room, State) ->
     {reply, mm_encode:enter_successful(), note_room(Room, State)};
 
 handle_payload(_, _, State=#state{room=missing}) ->
-    {reply, mm_encode:err("please enter room"), State};
+    {reply, mm_encode:room_failure(), State};
 
 handle_payload(?PUB, Data, State=#state{token=Token, room=Room}) ->
     case mm_room:publish(Room, Token, Data) of

@@ -8,6 +8,7 @@
 -export([enter/1]).
 -export([enter_successful/0,
 	 enter_failure/0]).
+-export([room_failure/0]).
 
 -export([publish/1]).
 -export([publish_successful/0,
@@ -51,6 +52,9 @@ enter_successful() ->
 
 enter_failure() ->
     encode_failure("enter").
+
+room_failure() ->
+    encode_failure("room").
 
 %%------------------------------------------------------------------------------
 %% Publish
