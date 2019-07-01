@@ -9,6 +9,7 @@
 -module(mm_user).
 -behaviour(gen_server).
 -include("codes.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
 -ifdef(TEST).
 -define(LOGIN_ERROR_SPEEDBUMP_MS, 0).
@@ -193,3 +194,19 @@ code_to_access_type(?REVOKE_SUBSCRIBE) -> to_sub.
 %%------------------------------------------------------------------------------
 %% Tests
 %%------------------------------------------------------------------------------
+
+code_to_modification_test_() ->
+    [ ?_assert(code_to_modification(?ADD_ADMIN) =:= add)
+    , ?_assert(code_to_modification(?REVOKE_ADMIN) =:= revoke)
+    , ?_assert(code_to_modification(?ADD_PUBLISH) =:= add)
+    , ?_assert(code_to_modification(?REVOKE_PUBLISH) =:= revoke)
+    , ?_assert(code_to_modification(?ADD_SUBSCRIBE) =:= add)
+    , ?_assert(code_to_modification(?REVOKE_SUBSCRIBE) =:= revoke)].
+
+code_to_access_type_test_() ->
+    [ ?_assert(code_to_access_type(?ADD_ADMIN) =:= to_admin)
+    , ?_assert(code_to_access_type(?REVOKE_ADMIN) =:= to_admin)
+    , ?_assert(code_to_access_type(?ADD_PUBLISH) =:= to_pub)
+    , ?_assert(code_to_access_type(?REVOKE_PUBLISH) =:= to_pub)
+    , ?_assert(code_to_access_type(?ADD_SUBSCRIBE) =:= to_sub)
+    , ?_assert(code_to_access_type(?REVOKE_SUBSCRIBE) =:= to_sub)].
