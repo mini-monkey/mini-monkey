@@ -105,30 +105,29 @@ All messages, both to and from the server follow a trivial binary protocol.
 Function Codes
 --------------
 
-| Code | Comment                                                         |
-|------|-----------------------------------------------------------------|
-| 0x00 | Reseved for future use                                          |
-| 0x01 | Authenticate with token                                         |
-| 0x02 | Set current routing key (persistent until changed or reconnect) |
-| 0x03 | Publish binary payload                                          |
-| 0x04 | Subscribe to current routing key                                |
-| 0x04 | Subscribe to current routing key                                |
-| 0x10 | Add admin permissions for token                                 |
-| 0x11 | Revoke admin permissions for token                              |
-| 0x12 | Add publish permissions for token                               |
-| 0x13 | Revoke publish permissions for token                            |
-| 0x14 | Add subscription permissions for token                          |
-| 0x15 | Revoke subscription permissions for token                       |
-| 0x16 | Add login                                                       |
-| 0x17 | Revoke login                                                    |
-| 0x20 | Set death message payload                                       |
-| 0x21 | Set death message room                                          |
-| 0x22 | Enable death message                                            |
-| 0x23 | Disable death message                                           |
-| 0x30 | Forward messages in this room to another room                   |
-| 0x31 | Unforward message in this room to anther room                   |
-| 0xEE | Error message                                                   |
-| 0xFF | Debug message                                                   |
+| Code | Comment                                                         | Payload meaning                      |
+|------|-----------------------------------------------------------------|--------------------------------------|
+| 0x00 | Reseved for future use                                          |                                      |
+| 0x01 | Authenticate with token                                         | Token                                |
+| 0x02 | Enter room (persistent until changed or reconnect)              | Room                                 |
+| 0x03 | Publish binary payload                                          | Published data                       |
+| 0x04 | Subscribe to current routing key                                | Tag                                  |
+| 0x10 | Add admin permissions for token                                 | Additional admin token in room       |
+| 0x11 | Revoke admin permissions for token                              | Token to be revoked                  |
+| 0x12 | Add publish permissions for token                               | Additional publish token in room     |
+| 0x13 | Revoke publish permissions for token                            | Token to be revoked                  |
+| 0x14 | Add subscription permissions for token                          | Additional subs. token in room       |
+| 0x15 | Revoke subscription permissions for token                       | Token to be revoked                  |
+| 0x16 | Add login                                                       | Additional token that can login      |
+| 0x17 | Revoke login                                                    | Revoke a token for login             |
+| 0x20 | Set death message payload                                       | Data that is sent when disconnect    |
+| 0x21 | Set death message room                                          | Room where the messages is published |
+| 0x22 | Enable death message                                            |                                      |
+| 0x23 | Disable death message                                           |                                      |
+| 0x30 | Forward messages in this room to another room                   | Destiantion room for forward         |
+| 0x31 | Unforward message in this room to anther room                   | Destionation room for un-forward     |
+| 0xEE | Error message                                                   | Message                              |
+| 0xFF | Debug message                                                   | Message                              |
 
 Examples
 --------
