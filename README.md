@@ -32,11 +32,11 @@ Project Plan
 Three perspectives
 ------------------
 
-When designing Mini Monkey we need to focus on our three users:
+When designing Mini Monkey we need to focus on our three main uses-cases:
 
-1. Controllers that want to primarily consume data and control devices
-2. Devices that primarily will produce data and be be controlled
-3. Administrators that needs to configure access controls
+1. A embedded device produces data and is remotely controllable.
+2. A controller is cosuming data from one or more producers and send control messages.
+3. An administrator configures (programmaticially) who can publish/subscribe.
 
 ![Three perspectives](doc/three_perspectives.png)
 

@@ -1,11 +1,13 @@
 @startuml
 
-User << User >> as U
-User << Device >> as D
-User << Admin >> as A
+"Embedded Device" as E
+Controller as C
+Administrator as A
 
-U --> (MiniMonkey)
-D --> (MiniMonkey)
-A --> (MiniMonkey)
+storage "Mini Monkey" as B
+
+E <--> B
+C <--> B
+A <--> B
 
 @enduml
