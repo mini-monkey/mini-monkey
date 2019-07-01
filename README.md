@@ -47,7 +47,7 @@ When designing Mini Monkey we need to focus on our three main uses-cases:
 Design decisions
 ----------------
 
-Mini Monkey is a publish / subscribe broker than only support routing keys.
+Mini Monkey is a publish / subscribe broker than only support routing keys (called rooms).
 Especially it does not implement topics.
 
 Mini Monkey only cares about routing blobs.
@@ -111,7 +111,7 @@ Function Codes
 | 0x01 | Authenticate with token                                         | Token                                |
 | 0x02 | Enter room (persistent until changed or reconnect)              | Room                                 |
 | 0x03 | Publish binary payload                                          | Published data                       |
-| 0x04 | Subscribe to current routing key                                | Tag                                  |
+| 0x04 | Subscribe to current room                                       | Tag                                  |
 | 0x10 | Add admin permissions for token                                 | Additional admin token in room       |
 | 0x11 | Revoke admin permissions for token                              | Token to be revoked                  |
 | 0x12 | Add publish permissions for token                               | Additional publish token in room     |
@@ -137,8 +137,8 @@ A client logins in and publish 3 messages:
 | Purpose          | Bytes (little endian) | Optional Payload         | Comment        |
 |------------------|-----------------------|--------------------------|----------------|
 | Auth with token  | 0x01 0x04 0x00        | 0x41 0x42 0x43 0x44      | Token: ABCD    |
-| Pick routing key | 0x02 0x03 0x00        | 0x51 0x52 0x53           | Key: QRS       |
+| Enter room       | 0x02 0x03 0x00        | 0x51 0x52 0x53           | Key: QRS       |
 | Publish          | 0x03 0x04 0x00        | 0x01 0x02 0x03 0x04 0x05 | Binary payload |
 | Publish          | 0x03 0x02 0x00        | 0xFF 0xEE                | Binary payload |
-| Pick routing key | 0x02 0x04 0x00        | 0x51 0x52 0x53 0x032     | Key: QRS2      |
+| Pick another     | 0x02 0x04 0x00        | 0x51 0x52 0x53 0x032     | Key: QRS2      |
 | Publish          | 0x03 0x01 0x00        | 0xAB                     | Binary payload |
