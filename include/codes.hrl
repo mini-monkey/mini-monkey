@@ -17,5 +17,8 @@
 -define(ADD_LOGIN, 16#16).
 -define(REVOKE_LOGIN, 16#17).
 
+-define(LINK_ROOM, 16#30).
+-define(UNLINK_ROOM, 16#31).
+
 -define(ERR, 16#EE).
 -define(MSG, 16#FF).

@@ -125,6 +125,8 @@ Function Codes
 | 0x21 | Set death message room                                          |
 | 0x22 | Enable death message                                            |
 | 0x23 | Disable death message                                           |
+| 0x30 | Forward messages in this room to another room                   |
+| 0x31 | Unforward message in this room to anther room                   |
 | 0xEE | Error message                                                   |
 | 0xFF | Debug message                                                   |
 
