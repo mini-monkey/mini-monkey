@@ -10,8 +10,7 @@ Mini Monkey (pre-alpha)
 
 Mini Monkey is a minimal message routing system.
 Considerably smaller and simpler than [MQTT](https://en.wikipedia.org/wiki/MQTT).
-
-It should be possible to implement a client in under one hour.
+Like other message brokers (RabbitMQ, EMQX, VerneMQ), Mini Monkey is implemented in Erlang.
 
 Quick Start
 -----------
