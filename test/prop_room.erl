@@ -36,6 +36,20 @@ prop_room_minimal_multi_test() ->
 		Result =:= contents_to_result(Contents, Tag)
 	    end).
 
+prop_room_admin() ->
+    ?FORALL({Name, Token}, {blob(), blob()},
+	    begin
+		mm_test_common:setup(),
+
+		{ok, Room} = mm_room_sup:create_room(Name),
+
+		true andalso
+		    ok =:= mm_room:permissions(Room, god_token(), add, to_admin, Token) andalso
+		    true =:= mm_room:is_admin(Room, Token) andalso
+		    ok =:= mm_room:permissions(Room, god_token(), revoke, to_admin, Token) andalso
+		    false =:= mm_room:is_admin(Room, Token)
+	    end).
+
 %%%%%%%%%%%%%%%
 %%% Helpers %%%
 %%%%%%%%%%%%%%%

@@ -15,7 +15,8 @@
 	 subscribe/4,
 	 unsubscribe/2,
 	 count_subscribers/1,
-	 permissions/5]).
+	 permissions/5,
+	 is_admin/2]).
 
 %% Behaviour
 -export([init/1,
@@ -46,6 +47,9 @@ count_subscribers(Room) ->
 
 permissions(Room, MyToken, Modification, AccessType, Token) ->
     gen_server:call(safe_room(Room), {permissions, MyToken, Modification, AccessType, Token}).
+
+is_admin(Room, Token) ->
+    gen_server:call(safe_room(Room), {is_admin, Token}).
 
 %%-----------------------------------------------------------------------------
 %% Behaviour callbacks
@@ -94,6 +98,9 @@ handle_call({permissions, MyToken, Modification, AccessType, Token}, _From, Stat
 	_ ->
 	    {reply, error, State}
     end;
+
+handle_call({is_admin, Token}, _From, State) ->
+    {reply, rights(to_admin, Token, State), State};
 
 handle_call(What, _From, State) ->
     {reply, {error, What}, State}.
