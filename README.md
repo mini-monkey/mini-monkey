@@ -20,6 +20,11 @@ Quick Start
 docker run -d -p 1773:1773 -e god_token=myToken raphexion/minimonkey
 ```
 
+Clients
+-------
+
+- [Client in Acceptence Tester](https://github.com/Raphexion/minimonkey-tests/blob/master/libraries/MiniMonkey.py)
+
 Project Plan
 ------------
 
