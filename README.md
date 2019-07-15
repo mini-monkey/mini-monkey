@@ -98,8 +98,9 @@ All messages, both to and from the server follow a trivial binary protocol.
 
 | Size    | Comment                          |
 |---------|----------------------------------|
-| 1 byte  | Function Code                    |
-| 2 bytes | Payload size (little endian)     |
+| 1 bit   | Big endian size?                 |
+| 7 bits  | Function Code                    |
+| 2 bytes | Payload size                     |
 | N bytes | Optional payload                 |
 
 Function Codes
@@ -126,8 +127,8 @@ Function Codes
 | 0x23 | Disable death message                                           |                                      |
 | 0x30 | Forward messages in this room to another room                   | Destiantion room for forward         |
 | 0x31 | Unforward message in this room to anther room                   | Destionation room for un-forward     |
-| 0xEE | Error message                                                   | Message                              |
-| 0xFF | Debug message                                                   | Message                              |
+| 0x7E | Error message                                                   | Message                              |
+| 0x7F | Debug message                                                   | Message                              |
 
 Examples
 --------

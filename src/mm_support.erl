@@ -17,7 +17,11 @@ binary_env_var(Name, Default) ->
 	    list_to_binary(Var)
     end.
 
-correctly_formated(<<Code:8, Size:16/little, Data/binary>>) when Size < byte_size(Data) ->
+%% Most significant bit (MSB) indicates that size is big endian
+correctly_formated(<<1:1, Code:7, Size:16/big, Data/binary>>) ->
+    correctly_formated(<<0:1, Code:7, Size:16/little, Data/binary>>);
+
+correctly_formated(<<0:1, Code:7, Size:16/little, Data/binary>>) when Size < byte_size(Data) ->
     <<Payload:Size/binary, Rest/binary>> = Data,
     {ok, Code, Payload, Rest};
 

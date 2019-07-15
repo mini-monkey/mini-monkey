@@ -20,5 +20,5 @@
 -define(LINK_ROOM, 16#30).
 -define(UNLINK_ROOM, 16#31).
 
--define(ERR, 16#EE).
--define(MSG, 16#FF).
+-define(ERR, 16#7E).
+-define(MSG, 16#7F).
