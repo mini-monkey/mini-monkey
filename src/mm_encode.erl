@@ -24,6 +24,9 @@
 -export([allow_publish/1,
 	 allow_subscribe/1]).
 
+-export([add_login_successful/0,
+	 add_login_failure/0]).
+
 %%------------------------------------------------------------------------------
 %% Login
 %%------------------------------------------------------------------------------
@@ -97,6 +100,16 @@ allow_publish(Token) ->
 
 allow_subscribe(Token) ->
     encode_payload(?ADD_SUBSCRIBE, Token).
+
+%%------------------------------------------------------------------------------
+%% Add/Revoke login tokens
+%%------------------------------------------------------------------------------
+
+add_login_successful() ->
+    encode_success("add login").
+
+add_login_failure() ->
+    encode_failure("add login").
 
 %%------------------------------------------------------------------------------
 %% Private
