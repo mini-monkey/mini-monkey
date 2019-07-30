@@ -171,6 +171,16 @@ handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
 	    {reply, mm_encode:permissions_successful(), State};
 	_ ->
 	    {reply, mm_encode:permissions_failure(), State}
+    end;
+
+handle_payload(?LINK_ROOM, DstRoom, State) ->
+    mm_room_sup:create_room(DstRoom),
+    #state{token=Token, room=Room} = State,
+    case mm_room:forward_from_to(Room, DstRoom, Token) of
+	ok ->
+	    {reply, mm_encode:link_successful(), State};
+	_ ->
+	    {reply, mm_encode:link_failure(), State}
     end.
 
 note_room(Room, State=#state{rooms=Rooms}) ->
