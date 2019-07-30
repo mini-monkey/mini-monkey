@@ -85,6 +85,7 @@ count_forwards(Room) ->
 
 %% @hidden
 init([GodToken, Name]) ->
+    lager:debug("created room ~p", [Name]),
     {ok, init_state(Name, GodToken)}.
 
 %% @hidden
