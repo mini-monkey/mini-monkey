@@ -71,13 +71,9 @@ handle_info({tcp, _Port, DataNew}, State0=#state{data=DataOld}) ->
 
     case mm_support:correctly_formated(Data) of
 	{ok, Code, Payload, Rest} ->
-	    case handle_payload(Code, Payload, State0#state{data=Rest}) of
-		{reply, Resp, State} ->
-		    send_response(Resp, State),
-		    {noreply, State};
-		_ ->
-		    {noreply, State0}
-	    end;
+	    {reply, Resp, State} = handle_payload(Code, Payload, State0#state{data=Rest}),
+	    send_response(Resp, State),
+	    {noreply, State};
 	{error, Data} ->
 	    {noreply, State0#state{data=Data}}
     end;
