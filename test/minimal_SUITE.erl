@@ -32,6 +32,6 @@ test_successful_auth(_Config) ->
     {ok, Sock} = gen_tcp:connect("localhost", 1773, [binary]),
 
     Token = <<"guest">>,
-    ok = login:add_token(Token),
+    ok = mm_login:add_token(Token),
     ok = gen_tcp:send(Sock, mm_encode:login(Token)),
     {ok, mm_encode:login_successful()} =:= gen_tcp:recv(Sock, 0).

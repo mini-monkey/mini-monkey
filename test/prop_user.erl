@@ -17,8 +17,8 @@ prop_user_minimal_pub_sub_test() ->
 	    begin
 		%% setup the system
 		setup(),
-		login:add_token(Token1),
-		login:add_token(Token2),
+		mm_login:add_token(Token1),
+		mm_login:add_token(Token2),
 
 		%% make the connections
 		{ok, Sock1} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),
@@ -61,8 +61,8 @@ prop_admin_for_pub() ->
     ?FORALL({TokenAdmin, TokenPub, Room, Content}, {blob(), blob(), blob(), blob()},
 	    begin
 		setup(),
-		login:add_token(TokenAdmin),
-		login:add_token(TokenPub),
+		mm_login:add_token(TokenAdmin),
+		mm_login:add_token(TokenPub),
 
 		%% make the connections
 		{ok, Sock1} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),
@@ -98,8 +98,8 @@ prop_admin_for_sub() ->
     ?FORALL({TokenAdmin, TokenSub, Room, Tag}, {blob(), blob(), blob(), blob()},
 	    begin
 		setup(),
-		login:add_token(TokenAdmin),
-		login:add_token(TokenSub),
+		mm_login:add_token(TokenAdmin),
+		mm_login:add_token(TokenSub),
 
 		%% make the connections
 		{ok, Sock1} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),
@@ -135,7 +135,7 @@ prop_enter_without_login() ->
     ?FORALL({Token, Room}, {blob(), blob()},
 	    begin
 		mm_test_common:setup(),
-		login:add_token(Token),
+		mm_login:add_token(Token),
 
 		%% make the connections
 		{ok, Sock} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),
@@ -152,7 +152,7 @@ prop_pub_without_enter() ->
     ?FORALL({Token, Content}, {blob(), blob()},
 	    begin
 		mm_test_common:setup(),
-		login:add_token(Token),
+		mm_login:add_token(Token),
 
 		%% make the connections and login
 		{ok, Sock} = gen_tcp:connect("localhost", 1773, [binary, {active, false}]),

@@ -39,8 +39,8 @@ init([]) ->
     ListenerSpec = ranch:child_spec(minimonkey, 100,
 				    ranch_tcp, [{port, 1773}],
 				    mm_user, []),
-    Login = #{id => login,
-	      start => {login, start_link, [Token]}},
+    Login = #{id => mm_login,
+	      start => {mm_login, start_link, [Token]}},
 
     RoomSup = #{id => mm_room_sup,
 		start => {mm_room_sup, start_link, [Token]}},

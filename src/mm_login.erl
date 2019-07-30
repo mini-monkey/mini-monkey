@@ -1,4 +1,4 @@
--module(login).
+-module(mm_login).
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
 

@@ -13,7 +13,7 @@
 setup() ->
     os:putenv("god_token", binary_to_list(god_token())),
     application:ensure_all_started(minimonkey),
-    true = login:is_god_token(god_token()).
+    true = mm_login:is_god_token(god_token()).
 
 allow_admin(Room, Token) ->
     ok =:= mm_room:permissions(Room, god_token(), add, to_admin, Token).

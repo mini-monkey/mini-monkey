@@ -113,7 +113,7 @@ send_response(Payload, #state{socket=Socket, transport=Transport}) ->
 
 handle_payload(?AUTH, Token, State) ->
     lager:debug("auth with ~p", [Token]),
-    case login:attempt(Token) of
+    case mm_login:attempt(Token) of
 	ok ->
 	    {reply, mm_encode:login_successful(), State#state{token=Token}};
 	_ ->
@@ -126,9 +126,9 @@ handle_payload(_, _, State=#state{token=missing}) ->
     {reply, mm_encode:login_failure(), State};
 
 handle_payload(?ADD_LOGIN, Token, State=#state{token=LoginToken}) ->
-    case login:is_god_token(LoginToken) of
+    case mm_login:is_god_token(LoginToken) of
 	true ->
-	    login:add_token(Token),
+	    mm_login:add_token(Token),
 	    {reply, mm_encode:add_login_successful(), State};
 	_ ->
 	    {reply, mm_encode:add_login_failure(), State}
