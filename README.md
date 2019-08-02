@@ -1,8 +1,8 @@
 Mini Monkey (pre-alpha)
 =======================
 
-[![Build Status](https://travis-ci.org/Raphexion/minimonkey.svg?branch=master)](https://travis-ci.org/Raphexion/minimonkey)
-[![codecov.io](https://codecov.io/gh/Raphexion/minimonkey/coverage.svg?branch=master)](https://codecov.io/gh/Raphexion/minimonkey?branch=master)
+[![Build Status](https://travis-ci.org/mini-monkey/mini-monkey.svg?branch=master)](https://travis-ci.org/mini-monkey/mini-monkey)
+[![codecov.io](https://codecov.io/gh/mini-monkey/mini-monkey/coverage.svg?branch=master)](https://codecov.io/gh/mini-monkey/mini-monkey?branch=master)
 [![Docker build](https://img.shields.io/docker/cloud/build/raphexion/minimonkey.svg?color=green)](https://hub.docker.com/r/raphexion/minimonkey)
 [![License Apache 2](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
