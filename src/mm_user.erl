@@ -160,8 +160,8 @@ handle_payload(?SUB, Tag, State=#state{token=Token, room=Room}) ->
 handle_payload(Code, Token, State) when Code >= ?ADD_ADMIN andalso
 					Code =< ?REVOKE_SUBSCRIBE ->
     #state{token=MyToken, room=Room} = State,
-    Mod = code_to_modification(Code),
-    Access = code_to_access_type(Code),
+    Mod = mm_codes:code_to_modification(Code),
+    Access = mm_codes:code_to_access_type(Code),
     case mm_room:permissions(Room, MyToken, Mod, Access, Token) of
 	ok ->
 	    {reply, mm_encode:permissions_successful(), State};
@@ -191,37 +191,3 @@ unsubscribe([]) ->
 unsubscribe([Room|Rooms]) ->
     room:unsubscribe(Room, self()),
     unsubscribe(Rooms).
-
-code_to_modification(?ADD_ADMIN) -> add;
-code_to_modification(?REVOKE_ADMIN) -> revoke;
-code_to_modification(?ADD_PUBLISH) -> add;
-code_to_modification(?REVOKE_PUBLISH) -> revoke;
-code_to_modification(?ADD_SUBSCRIBE) -> add;
-code_to_modification(?REVOKE_SUBSCRIBE) -> revoke.
-
-code_to_access_type(?ADD_ADMIN) -> to_admin;
-code_to_access_type(?REVOKE_ADMIN) -> to_admin;
-code_to_access_type(?ADD_PUBLISH) -> to_pub;
-code_to_access_type(?REVOKE_PUBLISH) -> to_pub;
-code_to_access_type(?ADD_SUBSCRIBE) -> to_sub;
-code_to_access_type(?REVOKE_SUBSCRIBE) -> to_sub.
-
-%%------------------------------------------------------------------------------
-%% Tests
-%%------------------------------------------------------------------------------
-
-code_to_modification_test_() ->
-    [ ?_assert(code_to_modification(?ADD_ADMIN) =:= add)
-    , ?_assert(code_to_modification(?REVOKE_ADMIN) =:= revoke)
-    , ?_assert(code_to_modification(?ADD_PUBLISH) =:= add)
-    , ?_assert(code_to_modification(?REVOKE_PUBLISH) =:= revoke)
-    , ?_assert(code_to_modification(?ADD_SUBSCRIBE) =:= add)
-    , ?_assert(code_to_modification(?REVOKE_SUBSCRIBE) =:= revoke)].
-
-code_to_access_type_test_() ->
-    [ ?_assert(code_to_access_type(?ADD_ADMIN) =:= to_admin)
-    , ?_assert(code_to_access_type(?REVOKE_ADMIN) =:= to_admin)
-    , ?_assert(code_to_access_type(?ADD_PUBLISH) =:= to_pub)
-    , ?_assert(code_to_access_type(?REVOKE_PUBLISH) =:= to_pub)
-    , ?_assert(code_to_access_type(?ADD_SUBSCRIBE) =:= to_sub)
-    , ?_assert(code_to_access_type(?REVOKE_SUBSCRIBE) =:= to_sub)].
