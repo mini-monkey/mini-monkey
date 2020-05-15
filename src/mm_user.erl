@@ -67,8 +67,6 @@ handle_info({tcp_closed, _Port}, State) ->
 
 handle_info({tcp, _Port, DataNew}, State0=#state{data=DataOld}) ->
     Data = <<DataOld/binary, DataNew/binary>>,
-    lager:debug("total data  : ~p", [Data]),
-
     case mm_support:correctly_formated(Data) of
 	{ok, Code, Payload, Rest} ->
 	    {reply, Resp, State} = handle_payload(Code, Payload, State0#state{data=Rest}),
@@ -105,7 +103,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%------------------------------------------------------------------------------
 
 send_response(Payload, #state{socket=Socket, transport=Transport}) ->
-    lager:debug("response: ~p", [Payload]),
+    log_response(Payload),
     Transport:send(Socket, Payload).
 
 %% Here we handle all the different payloads.
@@ -191,3 +189,12 @@ unsubscribe([]) ->
 unsubscribe([Room|Rooms]) ->
     room:unsubscribe(Room, self()),
     unsubscribe(Rooms).
+
+log_response(<<16#7e, _, _, Msg/binary>> ) ->
+    lager:debug("[USER] ERROR: ~p", [binary_to_list(Msg)]);
+
+log_response(<<16#7f, _, _, Msg/binary>> ) ->
+    lager:debug("[USER] DEBUG: ~p", [binary_to_list(Msg)]);
+
+log_response(Payload) ->
+    lager:debug("response: ~p", [Payload]).
