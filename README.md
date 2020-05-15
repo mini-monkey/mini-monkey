@@ -58,7 +58,7 @@ Mini Monkey is designed around small payloads.
 
 Mini Monkey is desgined to be very simple and concise.
 The goal is to reach feature-completion fast and leave as much as possible outside the broker.
-The protocol and architecture should be so easy that anyone can implement a client in under and hour.
+The protocol and architecture should be so easy that it is possible to implement a simple client in one day.
 
 Mini Monkey uses stateful connections where previous _commands_ affect future commands.
 The reasons is to keep all payloads small.
