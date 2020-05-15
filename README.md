@@ -22,6 +22,7 @@ docker run -d -p 1773:1773 -e god_token=myToken raphexion/minimonkey
 Clients
 -------
 
+- [Rust implementation](https://github.com/mini-monkey/minimonkeyrs)
 - [Client in Acceptence Tester (python)](https://github.com/Raphexion/minimonkey-tests/blob/master/libraries/MiniMonkey.py)
 - [Demo client in go](https://github.com/Raphexion/minimonkey_pubsub)
 
