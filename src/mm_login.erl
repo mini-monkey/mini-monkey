@@ -1,3 +1,11 @@
+%%%-------------------------------------------------------------------
+%% @doc MiniMonkey Login Module.
+%%
+%% Only handle when users connect - not room permissions
+%%
+%% @end
+%%%-------------------------------------------------------------------
+
 -module(mm_login).
 -behaviour(gen_server).
 -define(SERVER, ?MODULE).
