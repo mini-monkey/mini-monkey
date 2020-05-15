@@ -1,0 +1,9 @@
+@author Niklas Johansson <raphexion@gmail.com>
+@copyright 2019 Niklas Johansson
+@version 0.0.1
+@title Mini Monkey
+@doc `Mini Monkey' is a minimal message routing system.
+
+Mini Monkey is a minimal message routing system.
+Considerably smaller and simpler than [MQTT](https://en.wikipedia.org/wiki/MQTT).
+Like other message brokers (RabbitMQ, EMQX, VerneMQ), Mini Monkey is implemented in Erlang.
