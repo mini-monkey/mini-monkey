@@ -3,7 +3,7 @@ Mini Monkey (pre-alpha)
 
 [![Build Status](https://travis-ci.org/mini-monkey/mini-monkey.svg?branch=master)](https://travis-ci.org/mini-monkey/mini-monkey)
 [![codecov.io](https://codecov.io/gh/mini-monkey/mini-monkey/coverage.svg?branch=master)](https://codecov.io/gh/mini-monkey/mini-monkey?branch=master)
-[![Docker build](https://img.shields.io/docker/cloud/build/raphexion/minimonkey.svg?color=green)](https://hub.docker.com/r/raphexion/minimonkey)
+[![Docker build](https://img.shields.io/docker/cloud/build/minimonkey/mini-monkey.svg)](https://hub.docker.com/r/minimonkey/mini-monkey)
 [![License Apache 2](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ![Logo](doc/minimonkey_small.png)
@@ -16,7 +16,7 @@ Quick Start
 -----------
 
 ```sh
-docker run -d -p 1773:1773 -e god_token=myToken raphexion/minimonkey
+docker run -d -p 1773:1773 -e god_token=myToken minimonkey/mini-monkey
 ```
 
 Clients
