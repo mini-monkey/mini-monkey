@@ -79,8 +79,7 @@ count_forwards(Room) ->
 		permissions = #{to_admin => #{},
 				to_pub => #{},
 				to_sub => #{}},
-		forwards = sets:new(),
-		last = <<>>
+		forwards = sets:new()
 	       }).
 
 %% @hidden
@@ -177,7 +176,7 @@ priv_reset(#state{name=Name, god_token=GodToken}) ->
 priv_publish(Payload, State=#state{subs=Subs, forwards=Forwards}) ->
     priv_notify(Payload, maps:to_list(Subs)),
     priv_forward_publish(Payload, sets:to_list(Forwards)),
-    State#state{last=Payload}.
+    State.
 
 priv_subscribe(Client, Tag, State=#state{subs=Subs}) ->
     State#state{subs=Subs#{Client => Tag}}.
