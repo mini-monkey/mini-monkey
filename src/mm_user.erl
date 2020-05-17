@@ -90,8 +90,9 @@ handle_info(What, State) ->
     {noreply, State}.
 
 %% @hidden
-terminate(_Reason, State) ->
+terminate(_Reason, State=#state{socket=Socket, transport=Transport}) ->
     unsubscribe(State),
+    Transport:close(Socket),
     ok.
 
 %% @hidden
