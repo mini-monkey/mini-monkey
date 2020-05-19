@@ -1,0 +1,37 @@
+@startuml
+skinparam handwritten true
+skinparam nodesep 50
+skinparam ranksep 100
+
+package "YberWash, Inc" #Pink {
+	[Admin] #FloralWhite
+}
+
+package "Rådison Hotel" #Orange {
+	[Rådison Admin] #FloralWhite
+
+	[SmartWash2020 A]  #SkyBlue
+	[SmartWash2020 B] #SkyBlue
+}
+
+cloud "MiniMonkey Broker" #Yellow
+
+package "Jummy Restaurant" #GreenYellow  {
+	[Jummy Admin] #FloralWhite
+
+	[SmartWash2020 C] #SkyBlue
+	[SmartWash2020 D] #SkyBlue
+}
+
+[Admin] <-[#red]-> [MiniMonkey Broker]
+
+[Rådison Admin] <-[#red]-> [MiniMonkey Broker]
+[Jummy Admin] <-[#red]-> [MiniMonkey Broker]
+
+[MiniMonkey Broker] <-[#blue]-> [SmartWash2020 A]
+[MiniMonkey Broker] <-[#blue]-> [SmartWash2020 B]
+
+[MiniMonkey Broker] <-[#blue]-> [SmartWash2020 C]
+[MiniMonkey Broker] <-[#blue]-> [SmartWash2020 D]
+
+@enduml
