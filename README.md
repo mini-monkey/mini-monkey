@@ -15,7 +15,7 @@ When to consider Mini Monkey:
 
 1.  Many embedded devices (microcontrollers)
 2.  Large clusters of industrial scale IoT devices
-3.  Need for programmatically provisioning
+3.  Non trivial authorizations that need to be provisioned programmatically 
 
 ## Quick Start
 
@@ -60,7 +60,7 @@ When designing Mini Monkey we need to focus on our three main uses-cases:
 
 ## User story
 
-YberWash, Inc has developed a internet connected - industrial - dish washing machine.
+YberWash, Inc has developed an internet connected - industrial - dish washing machine.
 It is called SmartWash2020.
 
 Currently they have two big customers, Rådison Hotel and Jummy Restaurant.
